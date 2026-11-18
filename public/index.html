@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<title>Host Zone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#2563eb;--blue-d:#1d4ed8;--bg:#f1f3f6;--card:#fff;--text:#0f172a;--muted:#64748b;--green:#16a34a;--red:#dc2626;--line:#e2e8f0;--r:24px;--sh:0 6px 24px rgba(15,23,42,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);font-family:'Poppins',system-ui,sans-serif;color:var(--text);font-size:14px;-webkit-text-size-adjust:100%}
+body{min-height:100vh;display:flex;justify-content:center}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--text)}
+a{color:var(--blue);text-decoration:none}
+.hidden{display:none!important}
+#app{width:100%;max-width:480px;min-height:100vh;position:relative;background:var(--bg)}
+svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* ---------- buttons / inputs */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 18px;border-radius:16px;font-weight:600;font-size:14px;letter-spacing:.4px;color:#fff;background:var(--blue);transition:transform .15s,opacity .2s,background .2s;box-shadow:0 6px 16px rgba(37,99,235,.28)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+.btn.green{background:var(--green);box-shadow:0 6px 16px rgba(22,163,74,.28)}
+.btn.red{background:var(--red);box-shadow:0 6px 16px rgba(220,38,38,.25)}
+.btn.ghost{background:#eef2ff;color:var(--blue);box-shadow:none}
+.btn.grey{background:#e2e8f0;color:#64748b;box-shadow:none}
+.btn.sm{padding:9px 14px;width:auto;font-size:12px;border-radius:12px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin:0 0 6px 4px}
+.inp{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid var(--line);border-radius:16px;padding:0 14px;transition:border .2s,box-shadow .2s}
+.inp:focus-within{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12);background:#fff}
+.inp svg{color:#94a3b8}
+.inp input,.inp select{flex:1;border:0;outline:0;background:transparent;padding:14px 0;min-width:0}
+.inp .eye{padding:6px;color:#94a3b8}
+.hint{font-size:11px;color:var(--muted);margin:6px 4px 0}
+.err{color:var(--red);font-size:12px;margin:4px 4px 10px;min-height:0}
+/* ---------- auth */
+.auth{min-height:100vh;padding:34px 20px 30px;display:flex;flex-direction:column;align-items:center;background:linear-gradient(180deg,#dbeafe 0,var(--bg) 320px)}
+.brand{text-align:center;margin-bottom:22px}
+.logo-wrap{width:96px;height:96px;margin:0 auto 12px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 0 0 6px rgba(37,99,235,.10),0 0 40px rgba(37,99,235,.45);overflow:hidden;animation:glow 3s ease-in-out infinite}
+.logo-wrap img{width:100%;height:100%;object-fit:cover}
+.logo-wrap svg{width:46px;height:46px;color:var(--blue)}
+@keyframes glow{50%{box-shadow:0 0 0 10px rgba(37,99,235,.08),0 0 56px rgba(37,99,235,.6)}}
+.brand h1{margin:0;font-size:26px;font-weight:700;color:var(--blue)}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.panes{width:100%}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:22px}
+.pane h2{margin:0;font-size:20px;font-weight:700}
+.pane .sub{margin:2px 0 18px;color:var(--muted);font-size:13px}
+.pane{display:none}
+.pane.on{display:block}
+.pane.in-r{animation:inr .38s cubic-bezier(.22,1,.36,1)}
+.pane.in-l{animation:inl .38s cubic-bezier(.22,1,.36,1)}
+@keyframes inr{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+@keyframes inl{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}
+.step{display:none}.step.on{display:block;animation:fade .3s}
+.links{display:flex;justify-content:space-between;margin-top:16px;font-size:13px}
+.links a,.links button{color:var(--blue);font-weight:500}
+.otp{display:flex;gap:8px;justify-content:center;margin:6px 0 12px}
+.otp input{width:46px;height:54px;text-align:center;font-size:22px;font-weight:600;border:1.5px solid var(--line);border-radius:14px;background:#f8fafc;outline:0;transition:.2s}
+.otp input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.12);background:#fff}
+.timer{text-align:center;font-size:13px;color:var(--muted);margin:6px 0 14px}
+.timer button{color:var(--blue);font-weight:600}
+.timer button:disabled{color:#94a3b8}
+.okbox{text-align:center;padding:10px 0}
+.okbox .tick{width:72px;height:72px;border-radius:50%;background:#dcfce7;color:var(--green);display:grid;place-items:center;margin:0 auto 12px;animation:pop .5s}
+.okbox .tick svg{width:36px;height:36px;stroke-width:3}
+@keyframes pop{0%{transform:scale(.3)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+/* ---------- shell */
+.shell{padding-bottom:84px;min-height:100vh}
+.head{display:flex;align-items:center;gap:10px;padding:16px 16px 10px;position:sticky;top:0;z-index:20;background:linear-gradient(var(--bg) 80%,rgba(241,243,246,0))}
+.av{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;font-size:18px;overflow:hidden;flex:none;text-transform:uppercase}
+.av img{width:100%;height:100%;object-fit:cover}
+.head .wl{flex:1;min-width:0;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{display:flex;align-items:center;gap:8px;background:var(--blue);color:#fff;border-radius:999px;padding:6px 6px 6px 14px;font-weight:600;font-size:13px;box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.pill i{font-style:normal;width:24px;height:24px;border-radius:50%;background:#fff;color:var(--blue);display:grid;place-items:center;font-size:17px;line-height:1;font-weight:700}
+.subhead{display:flex;align-items:center;gap:12px;padding:16px;position:sticky;top:0;z-index:20;background:var(--bg)}
+.subhead h2{margin:0;font-size:18px;font-weight:700;flex:1}
+.back{width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:var(--sh);display:grid;place-items:center}
+.view{padding:4px 16px 16px;animation:fade .3s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(15,23,42,.08);border-radius:24px 24px 0 0;z-index:30}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:500;color:#94a3b8;padding:6px 0;transition:color .2s}
+.nav button svg{width:23px;height:23px;transition:transform .25s}
+.nav button.on{color:var(--blue)}
+.nav button.on svg{transform:translateY(-2px) scale(1.1)}
+h3.sec{font-size:16px;font-weight:700;margin:20px 4px 12px}
+/* ---------- home */
+.car{position:relative;border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);background:#fff;touch-action:pan-y}
+.car-track{display:flex;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.car-track a,.car-track div{flex:0 0 100%;display:block}
+.car-track img{width:100%;aspect-ratio:16/7;object-fit:cover;display:block}
+.dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.6);transition:.3s}
+.dots i.on{width:20px;border-radius:4px;background:#fff}
+.contests{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cbox{background:#fff;border-radius:20px;padding:16px 6px;text-align:center;box-shadow:var(--sh);transition:transform .15s}
+.cbox:active{transform:scale(.96)}
+.cbox b{display:block;font-size:24px;color:var(--blue);font-weight:700}
+.cbox span{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px}
+.gtitle{text-align:center;font-size:15px;font-weight:700;margin:22px 0 12px}
+.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gcard{background:#fff;border-radius:18px;overflow:hidden;box-shadow:var(--sh);transition:transform .15s;display:flex;flex-direction:column}
+.gcard:active{transform:scale(.96)}
+.gcard img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#e2e8f0}
+.gcard span{background:var(--blue);color:#fff;font-size:10.5px;font-weight:600;text-align:center;padding:7px 4px;line-height:1.2;flex:1;display:grid;place-items:center;text-transform:uppercase}
+/* ---------- tabs / chips */
+.tabs{display:flex;background:#fff;border-radius:16px;padding:4px;box-shadow:var(--sh);margin-bottom:14px}
+.tabs button{flex:1;padding:10px 4px;border-radius:12px;font-weight:600;font-size:12px;color:var(--muted);letter-spacing:.3px;transition:.25s}
+.tabs button.on{background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(37,99,235,.3)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;background:#fff;font-size:12px;font-weight:500;color:var(--muted);box-shadow:0 2px 8px rgba(15,23,42,.06);transition:.2s}
+.chip.on{background:var(--blue);color:#fff}
+/* ---------- match card */
+.winlbl{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#fef3c7,#fde68a);color:#92400e;font-weight:700;font-size:12.5px;border-radius:999px;padding:6px 14px;margin:6px 0 8px 4px;box-shadow:0 2px 8px rgba(245,158,11,.25)}
+.winlbl:active{transform:scale(.96)}
+.mc{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:16px;animation:fade .35s}
+.mc .bn{position:relative}
+.mc .bn img{width:100%;aspect-ratio:16/8;object-fit:cover;display:block;background:#e2e8f0}
+.badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:4px 10px;border-radius:999px;color:#fff;letter-spacing:.5px}
+.b-upcoming{background:var(--blue)}.b-ongoing{background:var(--red);animation:pulse 1.4s infinite}.b-completed{background:#475569}.b-cancelled{background:#9a3412}
+@keyframes pulse{50%{opacity:.6}}
+.mc .in{padding:14px 16px 16px}
+.mc h4{margin:0;font-size:16px;font-weight:700;display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.mc .dt{color:var(--muted);font-size:12px;margin:2px 0 12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:#f8fafc;border-radius:12px;padding:8px 6px;text-align:center}
+.stat small{display:block;font-size:9.5px;color:var(--muted);font-weight:600;letter-spacing:.4px}
+.stat b{font-size:13px;font-weight:700}
+.prog{height:8px;background:#e2e8f0;border-radius:6px;overflow:hidden}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),#60a5fa);border-radius:6px;transition:width .6s}
+.progt{font-size:11.5px;color:var(--muted);margin:6px 2px 12px;font-weight:500}
+.room{background:#ecfdf5;border:1.5px dashed #34d399;border-radius:14px;padding:10px 12px;margin-bottom:12px}
+.room .rw{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0}
+.room small{font-size:10px;font-weight:600;color:#047857;letter-spacing:.5px;display:block}
+.room b{font-size:15px;word-break:break-all}
+.room button{background:#059669;color:#fff;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:600;display:flex;gap:4px;align-items:center}
+.room button svg{width:13px;height:13px}
+.roomwait{background:#fffbeb;border:1.5px dashed #fbbf24;border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#92400e}
+.myres{background:#eff6ff;border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;display:flex;justify-content:space-between}
+/* ---------- misc cards */
+.empty{text-align:center;padding:42px 20px;color:var(--muted)}
+.empty .ei{font-size:44px;margin-bottom:8px}
+.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+.sk{background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 37%,#e5e7eb 63%);background-size:400% 100%;animation:sk 1.3s infinite;border-radius:16px}
+@keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.list{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.li{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #f1f5f9;width:100%;text-align:left}
+.li:last-child{border:0}
+.li{color:inherit;background:none}
+.li .ic{width:38px;height:38px;border-radius:12px;background:#eff6ff;color:var(--blue);display:grid;place-items:center;flex:none}
+.li .tx{flex:1;min-width:0}
+.li .tx b{display:block;font-size:13.5px;font-weight:600}
+.li .tx small{color:var(--muted);font-size:11.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amt{font-weight:700;font-size:14px;text-align:right}
+.amt.plus{color:var(--green)}.amt.minus{color:var(--red)}
+.st{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;margin-top:3px}
+.st.success,.st.paid,.st.credited{background:#dcfce7;color:#15803d}
+.st.pending,.st.approved{background:#fef9c3;color:#a16207}
+.st.failed,.st.rejected,.st.expired{background:#fee2e2;color:#b91c1c}
+.wallet-card{background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;border-radius:var(--r);padding:22px;box-shadow:0 12px 30px rgba(37,99,235,.35)}
+.wallet-card small{opacity:.8;font-size:12px}
+.wallet-card .tot{font-size:32px;font-weight:700;margin:2px 0 14px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.split div{background:rgba(255,255,255,.15);border-radius:16px;padding:10px 12px}
+.split b{display:block;font-size:17px}
+.wbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wbtns .btn{background:#fff;color:var(--blue);box-shadow:none}
+.wbtns .btn.w{background:rgba(255,255,255,.18);color:#fff}
+.chipamt{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.chipamt button{padding:8px 16px;background:#eef2ff;border-radius:999px;color:var(--blue);font-weight:600;font-size:13px}
+.sum{background:#f8fafc;border-radius:16px;padding:12px 14px;margin:6px 0 14px;font-size:13px}
+.sum div{display:flex;justify-content:space-between;padding:4px 0}
+.sum .tot{border-top:1px dashed var(--line);margin-top:4px;padding-top:8px;font-weight:700;font-size:15px;color:var(--green)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:#f1f5f9;border-radius:14px;padding:4px;margin-bottom:14px}
+.seg button{padding:10px;border-radius:11px;font-weight:600;font-size:13px;color:var(--muted);transition:.2s}
+.seg button.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,23,42,.1)}
+/* ---------- leaderboard */
+.lb-h{display:grid;grid-template-columns:56px 1fr 90px;padding:8px 16px;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.6px}
+.lb-r{display:grid;grid-template-columns:56px 1fr 90px;align-items:center;padding:13px 16px;border-radius:18px;margin-bottom:8px;background:#fff;box-shadow:0 2px 10px rgba(15,23,42,.05);animation:fade .35s backwards}
+.lb-r b:last-child{text-align:right}
+.lb-r.r1{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;box-shadow:0 10px 24px rgba(124,58,237,.4);padding:17px 16px}
+.lb-r.r2{background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff}
+.lb-r.r3{background:linear-gradient(135deg,#6d28d9,#4c1d95);color:#fff}
+.lb-r .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.lb-r .me{font-size:9px;background:var(--blue);color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.crown{font-size:20px;margin-right:2px}
+/* ---------- profile */
+.pcard{text-align:center;padding:24px 16px}
+.pcard .av{width:84px;height:84px;font-size:36px;margin:0 auto 10px;box-shadow:0 0 0 5px #dbeafe}
+.pcard h3{margin:0;font-size:19px}
+.pcard .mob{display:inline-flex;align-items:center;gap:8px;color:var(--muted);margin:4px 0 12px}
+.dot{background:var(--red);color:#fff;border-radius:999px;font-size:10px;padding:1px 7px;font-weight:700}
+/* ---------- sheet / toast */
+.sheet-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:fadeo .25s;backdrop-filter:blur(2px)}
+@keyframes fadeo{from{opacity:0}to{opacity:1}}
+.sheet{background:#fff;width:100%;max-width:480px;border-radius:28px 28px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;animation:up .35s cubic-bezier(.22,1,.36,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.sheet .grab{width:44px;height:5px;background:#e2e8f0;border-radius:3px;margin:-8px auto 14px}
+.sheet h3{margin:0 0 14px;font-size:18px;display:flex;justify-content:space-between;align-items:center}
+.sheet h3 button{width:32px;height:32px;border-radius:50%;background:#f1f5f9;display:grid;place-items:center}
+.sheet h3 button svg{width:16px;height:16px}
+.prow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #f1f5f9}
+.prow:last-child{border:0}
+.prow .n{width:28px;height:28px;border-radius:50%;background:#eff6ff;color:var(--blue);font-weight:700;font-size:12px;display:grid;place-items:center;flex:none}
+.prow .n.w{background:#fef3c7;color:#b45309}
+.prow .i{flex:1;min-width:0}.prow .i b{display:block;font-size:13.5px}.prow .i small{color:var(--muted);font-size:11px}
+.toasts{position:fixed;bottom:92px;left:0;right:0;z-index:200;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.toast{background:#0f172a;color:#fff;padding:11px 18px;border-radius:14px;font-size:13px;font-weight:500;max-width:420px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:tin .3s,tout .3s 3.2s forwards}
+.toast.ok{background:#15803d}.toast.bad{background:#b91c1c}
+@keyframes tin{from{opacity:0;transform:translateY(14px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateY(8px)}}
+#ptr{position:fixed;top:-50px;left:50%;margin-left:-20px;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:var(--sh);display:grid;place-items:center;z-index:90;color:var(--blue);transition:top .2s}
+#ptr svg{transition:transform .2s}
+#ptr.spin svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:22px;height:22px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.spinner.b{border-color:#dbeafe;border-top-color:var(--blue)}
+.full{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;gap:12px}
+.full .ei{font-size:64px}
+.full h2{margin:0}.full p{margin:0;color:var(--muted);max-width:320px}
+.rwd{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.rwd div{background:#fff;border-radius:18px;padding:14px;text-align:center;box-shadow:var(--sh)}
+.rwd b{display:block;font-size:20px;color:var(--blue)}.rwd small{color:var(--muted);font-size:11px}
+.codebox{display:flex;align-items:center;justify-content:space-between;background:#eff6ff;border:1.5px dashed var(--blue);border-radius:16px;padding:12px 14px;margin:12px 0}
+.codebox b{font-size:22px;letter-spacing:3px;color:var(--blue)}
+.promo{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+.promo img{width:100%;display:block;aspect-ratio:16/8;object-fit:cover}
+.promo .in{padding:14px 16px}.promo h4{margin:0 0 4px}.promo p{margin:0 0 10px;color:var(--muted);font-size:13px;white-space:pre-wrap}
+.note{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:var(--sh);margin-bottom:10px}
+.note h5{margin:0 0 4px;font-size:14px}.note p{margin:0;color:#475569;font-size:13px;white-space:pre-wrap}.note small{color:var(--muted);font-size:11px}
+.note.unread{border-left:4px solid var(--blue)}
+@media(max-width:360px){.otp input{width:40px;height:48px}.ggrid,.contests{gap:8px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="boot" class="full"><div class="spinner b" style="width:36px;height:36px"></div><p>Loading…</p></div>
+
+  <!-- ===================== AUTH ===================== -->
+  <div id="auth" class="auth hidden">
+    <div class="brand">
+      <div class="logo-wrap" id="logoWrap"></div>
+      <h1 id="brandName">Host Zone</h1>
+      <p id="brandTag"></p>
+    </div>
+    <div class="panes">
+      <!-- login -->
+      <section class="card pane on" id="p-login">
+        <h2>Welcome Back</h2><p class="sub">Login to continue</p>
+        <form data-form="login" novalidate>
+          <div class="field"><label>Mobile</label><div class="inp"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><input id="l-mobile" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter mobile number" autocomplete="username"></div></div>
+          <div class="field"><label>Password</label><div class="inp"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input id="l-pass" type="password" placeholder="Enter password" autocomplete="current-password"><button type="button" class="eye" data-act="eye" aria-label="Show password"></button></div></div>
+          <button class="btn" type="submit" id="l-btn">LOGIN</button>
+        </form>
+        <div class="links"><span>New user? <button data-act="pane" data-to="p-register">Register</button></span><button data-act="pane" data-to="p-forgot">Forgot password?</button></div>
+      </section>
+      <!-- register -->
+      <section class="card pane" id="p-register">
+        <div class="step on" data-step="1">
+          <h2>Create Account</h2><p class="sub">Join the tournament</p>
+          <form data-form="reg1" novalidate>
+            <div class="field"><label>Full Name</label><div class="inp"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><input id="r-name" maxlength="30" placeholder="Enter your name" autocomplete="name"></div></div>
+            <div class="field"><label>Mobile Number</label><div class="inp"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><input id="r-mobile" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile" autocomplete="tel-national"></div></div>
+            <div class="field"><label>Create Password</label><div class="inp"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input id="r-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password"><button type="button" class="eye" data-act="eye" aria-label="Show password"></button></div></div>
+            <div class="field"><label>Referral Code (optional)</label><div class="inp"><svg viewBox="0 0 24 24"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg><input id="r-ref" maxlength="20" placeholder="Enter referral code" style="text-transform:uppercase"></div></div>
+            <button class="btn" type="submit" id="r-btn">SEND OTP</button>
+          </form>
+          <div class="links"><span>Already have an account? <button data-act="pane" data-to="p-login">Login</button></span></div>
+        </div>
+        <div class="step" data-step="2">
+          <h2>Verify OTP</h2><p class="sub" id="r-otp-sub"></p>
+          <div class="otp" data-otp="reg"></div>
+          <div class="timer" id="r-timer"></div>
+          <button class="btn" data-act="reg-verify" id="r-vbtn">VERIFY &amp; CREATE ACCOUNT</button>
+          <div class="links"><button data-act="reg-back">← Change number</button></div>
+        </div>
+      </section>
+      <!-- forgot -->
+      <section class="card pane" id="p-forgot">
+        <div class="step on" data-step="1">
+          <h2>Forgot Password</h2><p class="sub">Enter your registered mobile number</p>
+          <form data-form="fp1" novalidate>
+            <div class="field"><label>Mobile</label><div class="inp"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><input id="f-mobile" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter mobile number"></div></div>
+            <button class="btn" type="submit" id="f-btn">SEND OTP</button>
+          </form>
+          <div class="links"><button data-act="pane" data-to="p-login">← Back to login</button></div>
+        </div>
+        <div class="step" data-step="2">
+          <h2>Verify OTP</h2><p class="sub" id="f-otp-sub"></p>
+          <div class="otp" data-otp="fp"></div>
+          <div class="timer" id="f-timer"></div>
+          <button class="btn" data-act="fp-verify" id="f-vbtn">VERIFY OTP</button>
+          <div class="links"><button data-act="fp-back">← Change number</button></div>
+        </div>
+        <div class="step" data-step="3">
+          <h2>New Password</h2><p class="sub">Create a new password for your account</p>
+          <form data-form="fp3" novalidate>
+            <div class="field"><label>New Password</label><div class="inp"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input id="f-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password"><button type="button" class="eye" data-act="eye" aria-label="Show password"></button></div></div>
+            <div class="field"><label>Confirm Password</label><div class="inp"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><input id="f-pass2" type="password" placeholder="Repeat password" autocomplete="new-password"></div></div>
+            <button class="btn" type="submit" id="f-sbtn">CHANGE PASSWORD</button>
+          </form>
+        </div>
+        <div class="step" data-step="4">
+          <div class="okbox"><div class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div><h2>Password Changed</h2><p class="sub">You can now login with your new password.</p></div>
+          <button class="btn" data-act="pane" data-to="p-login">GO TO LOGIN</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN ===================== -->
+  <div id="main" class="shell hidden">
+    <div id="hdr"></div>
+    <div id="view" class="view"></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+  </div>
+  <div id="ptr"></div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+ * Host Zone – user app. All data comes from the backend (/api).
+ * No API keys live here; wallet & prize logic is server-side.
+ * ===================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const inr = (n, d) => { n = Number(n) || 0; const f = (d === 2 || n % 1 !== 0) ? 2 : 0; return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: f, maximumFractionDigits: 2 }); };
+const IST = { timeZone: 'Asia/Kolkata' };
+const fmt = (d) => new Date(d).toLocaleString('en-IN', { ...IST, day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }).replace(/\bam\b/, 'AM').replace(/\bpm\b/, 'PM');
+const fmtShort = (d) => new Date(d).toLocaleString('en-IN', { ...IST, day: '2-digit', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true }).toUpperCase();
+const I = {
+  home: '<svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  promo: '<svg viewBox="0 0 24 24"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+  lb: '<svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>',
+  wallet: '<svg viewBox="0 0 24 24"><path d="M20 7H5a2 2 0 0 1 0-4h13v4zM3 5v14a2 2 0 0 0 2 2h15v-4M20 12v5h-4a2.5 2.5 0 0 1 0-5z"/></svg>',
+  user: '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  eye: '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeoff: '<svg viewBox="0 0 24 24"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 20C5 20 1 12 1 12a18.5 18.5 0 0 1 5.1-5.9M9.9 4.2A9 9 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.2 3.2M1 1l22 22"/></svg>',
+  back: '<svg viewBox="0 0 24 24"><path d="M15 18 9 12l6-6"/></svg>',
+  copy: '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  share: '<svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  refresh: '<svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>',
+  chev: '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>',
+  edit: '<svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  users: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>',
+  bell: '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+  help: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>',
+  code: '<svg viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>',
+  out: '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+  plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>',
+  phone: '<svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+};
+
+/* ------------------------------------------------------------ state */
+const LS = {
+  get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } },
+  del: (k) => { try { localStorage.removeItem(k); } catch { /* ignore */ } },
+};
+const S = { cfg: null, token: LS.get('hz_token'), user: null, unread: 0, timer: null, rid: 0, tab: null };
+const deviceId = (() => { let d = LS.get('hz_dev'); if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2)).replace(/-/g, ''); LS.set('hz_dev', d); } return d; })();
+
+/* ------------------------------------------------------------ api */
+async function api(path, o = {}) {
+  let r;
+  try {
+    r = await fetch('/api' + path, {
+      method: o.method || 'GET',
+      headers: { 'Content-Type': 'application/json', ...(S.token ? { Authorization: 'Bearer ' + S.token } : {}) },
+      body: o.body ? JSON.stringify(o.body) : undefined,
+    });
+  } catch { const e = new Error('No internet connection. Please check your network and try again.'); e.network = true; throw e; }
+  let j = null;
+  try { j = await r.json(); } catch { /* non-json */ }
+  if (!j) { const e = new Error('Server error. Please try again.'); e.status = r.status; throw e; }
+  if (!j.success) {
+    const e = new Error(j.message || 'Something went wrong'); e.status = r.status; e.code = j.data && j.data.code;
+    if (r.status === 401 && S.token && !path.startsWith('/auth/')) { logout(true); }
+    else if (e.code === 'BANNED' && S.token) showBlocked(e.message);
+    else if (e.code === 'MAINTENANCE') showMaint(e.message);
+    throw e;
+  }
+  return j;
+}
+function toast(msg, type) {
+  const t = document.createElement('div'); t.className = 'toast ' + (type || ''); t.textContent = msg;
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), 3600);
+}
+const fail = (e) => { if (e && e.status === 401 && S.token === null) return; toast(e.message || 'Something went wrong', 'bad'); };
+
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); }
+  catch { const a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch { /* ignore */ } a.remove(); }
+  toast('Copied!', 'ok');
+}
+function busy(btn, on, label) {
+  if (!btn) return;
+  if (on) { btn.dataset.l = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+  else { btn.disabled = false; btn.innerHTML = label || btn.dataset.l || btn.innerHTML; }
+}
+function compress(file, max, type, q) {
+  return new Promise((res, rej) => {
+    const img = new Image(); const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const w = Math.round(img.width * k), h = Math.round(img.height * k);
+      const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+      if (type === 'image/jpeg') { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); }
+      x.drawImage(img, 0, 0, w, h); URL.revokeObjectURL(url); res(c.toDataURL(type, q));
+    };
+    img.onerror = () => rej(new Error('Could not read this image'));
+    img.src = url;
+  });
+}
+const avatarHTML = (u, cls) => `<div class="av ${cls || ''}">${u.avatar ? `<img src="${esc(u.avatar)}" alt="">` : esc((u.name || '?').trim().charAt(0))}</div>`;
+
+/* ------------------------------------------------------------ sheets */
+let sheetClose = null;
+function openSheet(html, onClose) {
+  closeSheet();
+  const bg = document.createElement('div'); bg.className = 'sheet-bg'; bg.id = 'sheetbg';
+  bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div>`;
+  bg.addEventListener('click', (e) => { if (e.target === bg) closeSheet(); });
+  document.body.appendChild(bg); document.body.style.overflow = 'hidden'; sheetClose = onClose || null;
+  return $('.sheet', bg);
+}
+function closeSheet() {
+  const bg = $('#sheetbg'); if (!bg) return;
+  bg.remove(); document.body.style.overflow = ''; const f = sheetClose; sheetClose = null; if (f) f();
+}
+const sheetHead = (t) => `<h3><span>${t}</span><button data-act="closesheet" aria-label="Close">${I.x}</button></h3>`;
+
+/* ------------------------------------------------------------ screens */
+const hideAll = () => ['boot', 'auth', 'main'].forEach((i) => $('#' + i).classList.add('hidden'));
+function fullMsg(emoji, title, text, btns) {
+  hideAll(); stopPoll();
+  let el = $('#fullmsg'); if (!el) { el = document.createElement('div'); el.id = 'fullmsg'; $('#app').appendChild(el); }
+  el.className = 'full'; el.innerHTML = `<div class="ei">${emoji}</div><h2>${esc(title)}</h2><p>${esc(text)}</p>${btns || ''}`;
+}
+const clearFull = () => { const el = $('#fullmsg'); if (el) el.remove(); };
+function showBlocked(msg) { fullMsg('🚫', 'Account Blocked', msg || 'Your account has been blocked. Please contact support.', '<button class="btn red" style="max-width:240px" data-act="logout">Logout</button>'); }
+function showMaint(msg) { fullMsg('🛠️', 'Under Maintenance', msg || 'We will be back shortly.', '<button class="btn" style="max-width:240px" onclick="location.reload()">Retry</button>'); }
+
+function brand() {
+  const c = S.cfg; document.title = c.appName;
+  $('#brandName').textContent = c.appName; $('#brandTag').textContent = c.tagline || '';
+  $('#logoWrap').innerHTML = c.logo ? `<img src="${esc(c.logo)}" alt="${esc(c.appName)}">` : I.trophy;
+}
+function showAuth(pane) {
+  hideAll(); clearFull(); stopPoll(); $('#auth').classList.remove('hidden'); brand();
+  const q = new URLSearchParams(location.search).get('ref');
+  if (q) LS.set('hz_ref', q.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20));
+  const saved = LS.get('hz_ref');
+  if (saved) { $('#r-ref').value = saved; if (q) showPane('p-register', 1); }
+  if (pane) showPane(pane, 1);
+}
+function showPane(id, dir) {
+  $$('.pane').forEach((p) => p.classList.remove('on', 'in-r', 'in-l'));
+  const p = $('#' + id); p.classList.add('on', dir >= 0 ? 'in-r' : 'in-l');
+  $$('.step', p).forEach((s, i) => s.classList.toggle('on', i === 0));
+}
+function showStep(paneId, n) { $$('.step', $('#' + paneId)).forEach((s) => s.classList.toggle('on', s.dataset.step === String(n))); }
+
+/* OTP boxes */
+function otpBuild() {
+  $$('.otp').forEach((o) => {
+    o.innerHTML = Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" maxlength="1" pattern="[0-9]*" ${i === 0 ? 'autocomplete="one-time-code"' : ''} aria-label="OTP digit ${i + 1}">`).join('');
+    const ins = $$('input', o);
+    ins.forEach((el, i) => {
+      el.addEventListener('input', () => { el.value = el.value.replace(/\D/g, '').slice(-1); if (el.value && ins[i + 1]) ins[i + 1].focus(); });
+      el.addEventListener('keydown', (e) => { if (e.key === 'Backspace' && !el.value && ins[i - 1]) { ins[i - 1].focus(); ins[i - 1].value = ''; } if (e.key === 'Enter') { const b = o.parentElement.querySelector('[data-act$="-verify"]'); if (b) b.click(); } });
+      el.addEventListener('paste', (e) => { const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (!t) return; e.preventDefault(); t.split('').forEach((ch, k) => { if (ins[k]) ins[k].value = ch; }); (ins[Math.min(t.length, 5)]).focus(); });
+    });
+  });
+}
+const otpVal = (name) => $$(`[data-otp="${name}"] input`).map((i) => i.value).join('');
+const otpClear = (name) => { const ins = $$(`[data-otp="${name}"] input`); ins.forEach((i) => (i.value = '')); if (ins[0]) ins[0].focus(); };
+
+const timers = {};
+function startTimer(key, secs) {
+  const box = $('#' + key + '-timer'); clearInterval(timers[key]); let left = secs;
+  const paint = () => {
+    if (left > 0) box.innerHTML = `Resend OTP in <b>${left}s</b>`;
+    else { box.innerHTML = `Didn't get it? <button data-act="${key === 'r' ? 'reg' : 'fp'}-resend">RESEND OTP</button>`; clearInterval(timers[key]); }
+    left--;
+  };
+  paint(); timers[key] = setInterval(paint, 1000);
+}
+
+const authCtx = { reg: null, fp: null };
+async function sendRegOtp(btn, resend) {
+  const name = $('#r-name').value.trim(), mobile = $('#r-mobile').value.trim(), pass = $('#r-pass').value;
+  if (name.length < 2) return toast('Enter your full name', 'bad');
+  if (!/^[6-9]\d{9}$/.test(mobile)) return toast('Enter a valid 10-digit mobile number', 'bad');
+  if (pass.length < 6) return toast('Password must be at least 6 characters', 'bad');
+  busy(btn, true);
+  try {
+    const r = await api('/auth/otp/send', { method: 'POST', body: { mobile, purpose: 'register', name, password: pass } });
+    authCtx.reg = { name, mobile, pass, ref: $('#r-ref').value.trim().toUpperCase() };
+    $('#r-otp-sub').textContent = `Enter the 6-digit code sent to +91 ${mobile}`;
+    showStep('p-register', 2); otpClear('reg'); startTimer('r', (r.data && r.data.cooldown) || 60); toast(resend ? 'OTP resent' : 'OTP sent', 'ok');
+  } catch (e) { fail(e); } finally { busy(btn, false); }
+}
+async function sendFpOtp(btn, resend) {
+  const mobile = $('#f-mobile').value.trim();
+  if (!/^[6-9]\d{9}$/.test(mobile)) return toast('Enter a valid 10-digit mobile number', 'bad');
+  busy(btn, true);
+  try {
+    const r = await api('/auth/otp/send', { method: 'POST', body: { mobile, purpose: 'reset' } });
+    authCtx.fp = { mobile };
+    $('#f-otp-sub').textContent = `Enter the 6-digit code sent to +91 ${mobile}`;
+    showStep('p-forgot', 2); otpClear('fp'); startTimer('f', (r.data && r.data.cooldown) || 60); toast(resend ? 'OTP resent' : 'OTP sent', 'ok');
+  } catch (e) { fail(e); } finally { busy(btn, false); }
+}
+function setSession(d) { S.token = d.token; LS.set('hz_token', d.token); S.user = d.user; LS.del('hz_ref'); }
+
+const authActions = {
+  eye(t) { const i = $('input', t.parentElement); const show = i.type === 'password'; i.type = show ? 'text' : 'password'; t.innerHTML = show ? I.eyeoff : I.eye; },
+  pane(t) { showPane(t.dataset.to, t.dataset.to === 'p-login' ? -1 : 1); },
+  'reg-back'() { showStep('p-register', 1); },
+  'fp-back'() { showStep('p-forgot', 1); },
+  'reg-resend'(t) { sendRegOtp(t, true); },
+  'fp-resend'(t) { sendFpOtp(t, true); },
+  async 'reg-verify'(t) {
+    const otp = otpVal('reg'); if (otp.length !== 6) return toast('Enter the 6-digit OTP', 'bad');
+    const c = authCtx.reg; if (!c) return showStep('p-register', 1);
+    busy(t, true);
+    try {
+      const r = await api('/auth/register', { method: 'POST', body: { name: c.name, mobile: c.mobile, password: c.pass, ref: c.ref, otp, deviceId } });
+      setSession(r.data); toast('Account created! Welcome 🎉', 'ok'); if (r.data.refNote) setTimeout(() => toast(r.data.refNote), 900); startApp();
+    } catch (e) { fail(e); otpClear('reg'); } finally { busy(t, false); }
+  },
+  async 'fp-verify'(t) {
+    const otp = otpVal('fp'); if (otp.length !== 6) return toast('Enter the 6-digit OTP', 'bad');
+    busy(t, true);
+    try {
+      const r = await api('/auth/forgot/verify', { method: 'POST', body: { mobile: authCtx.fp.mobile, otp } });
+      authCtx.fp.token = r.data.resetToken; showStep('p-forgot', 3);
+    } catch (e) { fail(e); otpClear('fp'); } finally { busy(t, false); }
+  },
+};
+const forms = {
+  async login(f) {
+    const btn = $('#l-btn'); const mobile = $('#l-mobile').value.trim(), password = $('#l-pass').value;
+    if (!/^[6-9]\d{9}$/.test(mobile)) return toast('Enter a valid 10-digit mobile number', 'bad');
+    if (!password) return toast('Enter your password', 'bad');
+    busy(btn, true);
+    try { const r = await api('/auth/login', { method: 'POST', body: { mobile, password } }); setSession(r.data); $('#l-pass').value = ''; startApp(); }
+    catch (e) { if (e.code === 'BANNED') showBlocked(e.message); else fail(e); } finally { busy(btn, false); }
+  },
+  reg1() { sendRegOtp($('#r-btn')); },
+  fp1() { sendFpOtp($('#f-btn')); },
+  async fp3() {
+    const p = $('#f-pass').value, p2 = $('#f-pass2').value, btn = $('#f-sbtn');
+    if (p.length < 6) return toast('Password must be at least 6 characters', 'bad');
+    if (p !== p2) return toast('Passwords do not match', 'bad');
+    busy(btn, true);
+    try { await api('/auth/forgot/reset', { method: 'POST', body: { resetToken: authCtx.fp.token, password: p } }); showStep('p-forgot', 4); $('#f-pass').value = $('#f-pass2').value = ''; }
+    catch (e) { fail(e); } finally { busy(btn, false); }
+  },
+};
+
+/* ------------------------------------------------------------ shell / router */
+const TABS = [['home', 'Home', I.home], ['promo', 'Promotion', I.promo], ['leaderboard', 'Leaderboard', I.lb], ['wallet', 'Wallet', I.wallet], ['profile', 'Profile', I.user]];
+const TAB_OF = { game: 'home', matches: 'home', deposit: 'wallet', withdraw: 'wallet', referrals: 'profile', announcements: 'profile', support: 'profile' };
+
+async function startApp() {
+  clearFull(); hideAll(); $('#main').classList.remove('hidden');
+  $('#nav').innerHTML = TABS.map((t) => `<button data-act="tab" data-t="${t[0]}" aria-label="${t[1]}">${t[2]}<span>${t[1]}</span></button>`).join('');
+  if (!location.hash || location.hash === '#') location.hash = 'home';
+  route(); resumeDeposit();
+}
+function stopPoll() { clearInterval(S.timer); S.timer = null; }
+function poll(fn, ms) { stopPoll(); S.timer = setInterval(() => { if (!document.hidden && !$('#sheetbg')) fn(); }, ms); }
+
+function headerMain() {
+  const u = S.user;
+  $('#hdr').innerHTML = `<div class="head">${avatarHTML(u)}<div class="wl">Welcome, ${esc(u.name)}</div><button class="pill" data-act="deposit" aria-label="Add money"><span>💰 ${Number(u.balance).toFixed(2)}</span><i>+</i></button></div>`;
+}
+const headerSub = (title) => { $('#hdr').innerHTML = `<div class="subhead"><button class="back" data-act="back" aria-label="Back">${I.back}</button><h2>${esc(title)}</h2></div>`; };
+const skeleton = (n = 3, h = 120) => Array.from({ length: n }, () => `<div class="sk" style="height:${h}px;margin-bottom:14px"></div>`).join('');
+
+function route(quiet) {
+  if (!S.user) return;
+  const [name, arg] = (location.hash.slice(1) || 'home').split('/');
+  const R = pages[name] || pages.home;
+  const tab = TABS.some((t) => t[0] === name) ? name : (TAB_OF[name] || 'home');
+  $$('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.t === tab));
+  const rid = ++S.rid; stopPoll(); S.reloadPage = null;
+  const ctx = { rid, alive: () => rid === S.rid, quiet: !!quiet, arg };
+  if (!quiet) { window.scrollTo(0, 0); }
+  R(ctx).catch((e) => { if (ctx.alive()) { if (e.status === 401) return; $('#view').innerHTML = `<div class="empty"><div class="ei">📡</div><b>${esc(e.network ? 'No connection' : 'Could not load')}</b>${esc(e.message)}<br><br><button class="btn sm" data-act="reload">Try again</button></div>`; } });
+}
+const setView = (ctx, html) => { if (ctx.alive()) { const v = $('#view'); v.innerHTML = html; if (!ctx.quiet) { v.style.animation = 'none'; void v.offsetHeight; v.style.animation = ''; } } };
+async function refreshMe() { const r = await api('/me'); S.user = r.data.user; S.unread = r.data.unread; }
+
+/* ------------------------------------------------------------ pages */
+const pages = {};
+
+pages.home = async (ctx) => {
+  headerMain();
+  if (!ctx.quiet) setView(ctx, skeleton(1, 150) + skeleton(1, 90) + skeleton(2, 120));
+  const [h] = await Promise.all([api('/home'), refreshMe().then(headerMain).catch(() => {})]);
+  const d = h.data;
+  let html = '';
+  if (d.banners.length) html += `<div class="car" id="car"><div class="car-track">${d.banners.map((b) => (b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener"><img src="${esc(b.image)}" alt="Banner" loading="lazy"></a>` : `<div><img src="${esc(b.image)}" alt="Banner" loading="lazy"></div>`)).join('')}</div>${d.banners.length > 1 ? `<div class="dots">${d.banners.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}</div>`;
+  html += `<h3 class="sec">My Contests</h3><div class="contests">
+    <button class="cbox" data-act="go" data-to="matches/ongoing"><b>${d.contests.ongoing}</b><span>ONGOING</span></button>
+    <button class="cbox" data-act="go" data-to="matches/upcoming"><b>${d.contests.upcoming}</b><span>UPCOMING</span></button>
+    <button class="cbox" data-act="go" data-to="matches/completed"><b>${d.contests.result}</b><span>RESULT</span></button></div>
+    <div class="gtitle">Exclusive Tournaments – Big Winnings For All</div>`;
+  html += d.games.length
+    ? `<div class="ggrid">${d.games.map((g) => `<button class="gcard" data-act="go" data-to="game/${g.id}"><img src="${esc(g.icon)}" alt="" loading="lazy"><span>${esc(g.name)}</span></button>`).join('')}</div>`
+    : `<div class="empty"><div class="ei">🎮</div><b>No tournaments yet</b>New games and matches will appear here soon.</div>`;
+  setView(ctx, html);
+  initCarousel(ctx);
+};
+function initCarousel(ctx) {
+  const car = $('#car'); if (!car) return; const track = $('.car-track', car); const n = track.children.length; if (n < 2) return;
+  let i = 0, x0 = null;
+  const go = (k) => { i = (k + n) % n; track.style.transform = `translateX(-${i * 100}%)`; $$('.dots i', car).forEach((d, j) => d.classList.toggle('on', j === i)); };
+  let t = setInterval(() => { if (!ctx.alive() || !document.body.contains(car)) return clearInterval(t); go(i + 1); }, 4000);
+  car.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  car.addEventListener('touchend', (e) => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { go(i + (dx < 0 ? 1 : -1)); clearInterval(t); t = setInterval(() => go(i + 1), 4000); } x0 = null; });
+}
+
+/* ---- match card */
+function matchCard(m, opt) {
+  opt = opt || {};
+  const pct = m.maxPlayers ? Math.min(100, (m.joined / m.maxPlayers) * 100) : 0;
+  const lbl = m.winPrize > 0 ? `🏆 Win ${inr(m.winPrize)}` : m.prizePool > 0 ? `🏆 Prize ${inr(m.prizePool)}` : m.perKill > 0 ? `🏆 ${inr(m.perKill)} / Kill` : '🏆 Players';
+  let btn;
+  if (m.status === 'upcoming') btn = m.joinedByMe ? `<button class="btn grey" disabled>✔ JOINED</button>` : m.spotsLeft <= 0 ? `<button class="btn grey" disabled>FULL</button>` : `<button class="btn green" data-act="join" data-id="${m.id}">JOIN NOW</button>`;
+  else if (m.status === 'ongoing') btn = m.joinedByMe ? `<button class="btn grey" disabled>✔ JOINED • LIVE</button>` : `<button class="btn grey" disabled>MATCH STARTED</button>`;
+  else if (m.status === 'completed') btn = `<button class="btn" data-act="players" data-id="${m.id}">VIEW RESULT</button>`;
+  else btn = `<button class="btn grey" disabled>CANCELLED • FEES REFUNDED</button>`;
+  const room = m.room ? `<div class="room"><div class="rw"><div><small>ROOM ID</small><b>${esc(m.room.roomId)}</b></div><button data-act="copy" data-v="${esc(m.room.roomId)}">${I.copy}COPY</button></div>
+      <div class="rw"><div><small>PASSWORD</small><b>${esc(m.room.password || '—')}</b></div>${m.room.password ? `<button data-act="copy" data-v="${esc(m.room.password)}">${I.copy}COPY</button>` : ''}</div></div>`
+    : (m.roomPending ? `<div class="roomwait">⏳ Room ID & password will appear here once released by admin.</div>` : '');
+  const mine = (m.status === 'completed' && m.joinedByMe && m.myPrize !== undefined) ? `<div class="myres"><span>Your result: <b>${m.myKills} kills</b></span><b style="color:${m.myPrize > 0 ? 'var(--green)' : 'var(--muted)'}">${m.myPrize > 0 ? 'Won ' + inr(m.myPrize) : 'No prize'}</b></div>` : '';
+  return `<div class="mc-wrap">${m.status === 'cancelled' ? '' : `<button class="winlbl" data-act="players" data-id="${m.id}">${lbl} <span style="opacity:.7">• View players</span></button>`}
+  <div class="mc"><div class="bn">${m.banner ? `<img src="${esc(m.banner)}" alt="" loading="lazy">` : ''}<span class="badge b-${m.status}" style="${m.banner ? '' : 'position:static;display:inline-block;margin:12px 0 0 16px'}">${m.status.toUpperCase()}</span></div>
+  <div class="in"><h4><span>${esc(m.title)}</span><small style="color:var(--muted);font-weight:500;font-size:11px;white-space:nowrap">Match #${m.id}</small></h4>
+  <div class="dt">${opt.showGame ? esc(m.gameName) + ' • ' : ''}📅 ${fmt(m.startAt)} IST</div>
+  <div class="stats"><div class="stat"><small>PRIZE POOL</small><b>${inr(m.prizePool)}</b></div><div class="stat"><small>PER KILL</small><b>${inr(m.perKill)}</b></div><div class="stat"><small>ENTRY FEE</small><b>${m.entryFee > 0 ? inr(m.entryFee) : 'FREE'}</b></div>
+  <div class="stat"><small>TYPE</small><b>${esc(m.type)}</b></div><div class="stat"><small>VERSION</small><b>${esc(m.version)}</b></div><div class="stat"><small>MAP</small><b>${esc(m.map || '—')}</b></div></div>
+  <div class="prog"><i style="width:${pct}%"></i></div>
+  <div class="progt">${m.joined}/${m.maxPlayers} Joined${m.status === 'upcoming' ? ` – ${m.spotsLeft} Spots Left` : ''}</div>
+  ${room}${mine}${btn}</div></div></div>`;
+}
+const emptyMatches = (st) => `<div class="empty"><div class="ei">${st === 'completed' ? '🏁' : '🎯'}</div><b>No ${st} matches</b>${st === 'upcoming' ? 'New matches will be added soon. Check back later!' : 'Nothing to show here right now.'}</div>`;
+
+pages.game = async (ctx) => {
+  const gid = ctx.arg; const st = LS.get('hz_gtab') || 'upcoming';
+  headerSub('Tournament');
+  const load = async (tab, quiet) => {
+    if (!quiet) $('#gl') && ($('#gl').innerHTML = skeleton(2, 300));
+    const r = await api(`/games/${encodeURIComponent(gid)}/matches?status=${tab}`);
+    if (!ctx.alive()) return;
+    headerSub(r.data.game.name);
+    $('#gl').innerHTML = r.data.matches.length ? r.data.matches.map((m) => matchCard(m)).join('') : emptyMatches(tab);
+  };
+  setView(ctx, `<div class="tabs" id="gtabs">${['upcoming', 'ongoing', 'completed'].map((t) => `<button data-t="${t}" class="${t === st ? 'on' : ''}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div><div id="gl">${skeleton(2, 300)}</div>`);
+  let cur = st;
+  $('#gtabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; cur = b.dataset.t; LS.set('hz_gtab', cur); $$('#gtabs button').forEach((x) => x.classList.toggle('on', x === b)); load(cur).catch(fail); });
+  ctx.reload = () => load(cur, true); S.reloadPage = ctx.reload;
+  await load(cur);
+  poll(() => load(cur, true).catch(() => {}), 20000);
+};
+
+pages.matches = async (ctx) => {
+  const st = ['upcoming', 'ongoing', 'completed'].includes(ctx.arg) ? ctx.arg : 'upcoming';
+  headerSub('My Matches');
+  const load = async (tab, quiet) => {
+    if (!quiet) $('#gl').innerHTML = skeleton(2, 300);
+    const r = await api(`/my/matches?status=${tab}`); if (!ctx.alive()) return;
+    $('#gl').innerHTML = r.data.matches.length ? r.data.matches.map((m) => matchCard(m, { showGame: true })).join('') : `<div class="empty"><div class="ei">🎮</div><b>No ${tab} matches</b>Matches you join will show up here.<br><br><button class="btn sm" data-act="go" data-to="home">Browse tournaments</button></div>`;
+  };
+  setView(ctx, `<div class="tabs" id="gtabs">${['upcoming', 'ongoing', 'completed'].map((t) => `<button data-t="${t}" class="${t === st ? 'on' : ''}">${t.toUpperCase()}</button>`).join('')}</div><div id="gl"></div>`);
+  let cur = st;
+  $('#gtabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; cur = b.dataset.t; history.replaceState(null, '', '#matches/' + cur); $$('#gtabs button').forEach((x) => x.classList.toggle('on', x === b)); load(cur).catch(fail); });
+  S.reloadPage = () => load(cur, true);
+  await load(cur, ctx.quiet);
+  poll(() => load(cur, true).catch(() => {}), 20000);
+};
+
+/* ---- players / result sheet */
+async function showPlayers(id) {
+  const s = openSheet(sheetHead('Players') + skeleton(4, 46));
+  try {
+    const r = await api(`/matches/${id}/players`); const d = r.data; if (!$('#sheetbg')) return;
+    const done = d.match.status === 'completed';
+    const rows = d.players.map((p, i) => `<div class="prow"><div class="n ${p.winner ? 'w' : ''}">${done ? p.rank : i + 1}</div><div class="i"><b>${esc(p.ign)}${p.me ? ' <span class="me" style="font-size:9px;background:var(--blue);color:#fff;border-radius:6px;padding:1px 6px">YOU</span>' : ''}</b><small>UID: ${esc(p.uid)}${done ? ` • ${p.kills} kills` : ''}</small></div>${done ? `<b style="color:${p.prize > 0 ? 'var(--green)' : 'var(--muted)'}">${p.prize > 0 ? inr(p.prize) : '—'}</b>` : ''}</div>`).join('');
+    s.innerHTML = `<div class="grab"></div>${sheetHead(done ? '🏆 Result' : 'Joined Players')}<div style="font-size:12px;color:var(--muted);margin:-6px 0 8px">${esc(d.match.title)} • Match ID: <b>#${d.match.id}</b></div>${rows || '<div class="empty"><div class="ei">👥</div><b>No players yet</b>Be the first to join!</div>'}`;
+  } catch (e) { closeSheet(); fail(e); }
+}
+
+/* ---- join flow */
+async function joinFlow(id) {
+  const btn = $(`[data-act="join"][data-id="${id}"]`);
+  busy(btn, true);
+  let m;
+  try { await refreshMe(); headerMain(); const gid = (location.hash.split('/')[1]); const r = await api(`/games/${gid}/matches?status=upcoming`); m = r.data.matches.find((x) => x.id === Number(id)); }
+  catch (e) { busy(btn, false); return fail(e); }
+  busy(btn, false);
+  if (!m) { toast('Match not available', 'bad'); return route(true); }
+  const u = S.user; const low = u.balance < m.entryFee;
+  const s = openSheet(`${sheetHead('Join Match')}
+    <div style="font-weight:600;margin-bottom:12px">${esc(m.title)} <small style="color:var(--muted)">#${m.id}</small></div>
+    <div class="field"><label>In-game UID</label><div class="inp"><input id="j-uid" inputmode="numeric" maxlength="15" placeholder="Free Fire UID" value="${esc(u.lastUid)}"></div></div>
+    <div class="field"><label>In-game Name</label><div class="inp"><input id="j-ign" maxlength="30" placeholder="Your in-game name" value="${esc(u.lastIgn)}"></div></div>
+    <div class="sum"><div><span>Entry fee</span><b>${m.entryFee > 0 ? inr(m.entryFee) : 'FREE'}</b></div><div><span>Wallet balance</span><b style="color:${low ? 'var(--red)' : 'inherit'}">${inr(u.balance, 2)}</b></div>${m.entryFee > 0 ? `<div class="tot" style="color:${low ? 'var(--red)' : 'var(--green)'}"><span>Balance after joining</span><span>${low ? 'Insufficient' : inr(u.balance - m.entryFee, 2)}</span></div>` : ''}</div>
+    ${low ? `<div class="err" style="margin:0 0 10px">You need ${inr(m.entryFee - u.balance, 2)} more to join.</div><button class="btn" data-act="deposit">ADD MONEY</button>` : `<button class="btn green" id="j-go">${m.entryFee > 0 ? 'PAY ' + inr(m.entryFee) + ' & JOIN' : 'JOIN FOR FREE'}</button>`}`);
+  const go = $('#j-go', s); if (!go) return;
+  go.addEventListener('click', async () => {
+    const uid = $('#j-uid', s).value.trim(), ign = $('#j-ign', s).value.trim();
+    if (!/^\d{5,15}$/.test(uid)) return toast('Enter a valid Free Fire UID (digits only)', 'bad');
+    if (ign.length < 2) return toast('Enter your in-game name', 'bad');
+    busy(go, true);
+    try { await api(`/matches/${id}/join`, { method: 'POST', body: { uid, ign } }); closeSheet(); toast('Joined successfully! Good luck 🎮', 'ok'); await refreshMe().catch(() => {}); headerMain(); (S.reloadPage || (() => route(true)))(); }
+    catch (e) { busy(go, false); fail(e); if (e.code === 'LOW_BALANCE') { closeSheet(); } else if (/closed|full|started/i.test(e.message)) { closeSheet(); (S.reloadPage || (() => route(true)))(); } }
+  });
+}
+
+/* ---- promotion */
+pages.promo = async (ctx) => {
+  headerMain(); if (!ctx.quiet) setView(ctx, skeleton(3, 190));
+  const r = await api('/promotions'); const d = r.data;
+  const items = [...d.promotions.map((p) => `<div class="promo">${p.image ? `<img src="${esc(p.image)}" alt="" loading="lazy">` : ''}<div class="in"><h4>${esc(p.title)}</h4>${p.body ? `<p>${esc(p.body)}</p>` : ''}${p.link ? `<a class="btn sm" style="display:inline-flex" href="${esc(p.link)}" target="_blank" rel="noopener">View offer</a>` : ''}</div></div>`),
+    ...d.banners.map((b) => `<div class="promo">${b.link ? `<a href="${esc(b.link)}" target="_blank" rel="noopener"><img src="${esc(b.image)}" alt="" loading="lazy"></a>` : `<img src="${esc(b.image)}" alt="" loading="lazy">`}</div>`)];
+  setView(ctx, `<h3 class="sec" style="margin-top:6px">Promotions & Offers</h3>` + (items.length ? items.join('') : `<div class="empty"><div class="ei">🎁</div><b>No offers right now</b>Promotions and special offers will appear here.</div>`));
+};
+
+/* ---- leaderboard */
+pages.leaderboard = async (ctx) => {
+  headerMain();
+  const names = { daily: 'DAILY LEADERBOARD', weekly: 'WEEKLY LEADERBOARD', all: 'ALL-TIME LEADERBOARD' };
+  let cur = LS.get('hz_lb') || 'daily';
+  setView(ctx, `<div class="tabs" id="lbt">${['daily', 'weekly', 'all'].map((p) => `<button data-p="${p}">${p === 'all' ? 'All-time' : p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div><h3 class="sec" id="lbh" style="text-align:center;margin-top:4px"></h3><div id="lbl">${skeleton(5, 56)}</div>`);
+  const load = async (quiet) => {
+    $$('#lbt button').forEach((b) => b.classList.toggle('on', b.dataset.p === cur)); $('#lbh').textContent = names[cur];
+    if (!quiet) $('#lbl').innerHTML = skeleton(5, 56);
+    const r = await api('/leaderboard?period=' + cur); if (!ctx.alive()) return;
+    const rows = r.data.rows;
+    $('#lbl').innerHTML = rows.length ? `<div class="lb-h"><span>RANK</span><span>PLAYERNAME</span><span style="text-align:right">WINNINGS</span></div>` + rows.map((x, i) => `<div class="lb-r ${x.rank <= 3 ? 'r' + x.rank : ''}" style="animation-delay:${i * 50}ms"><b>${x.rank === 1 ? '<span class="crown">👑</span>1' : '#' + x.rank}</b><span class="nm">${esc(x.name)}${x.userId === r.data.meId ? '<span class="me">YOU</span>' : ''}</span><b>${inr(x.winnings)}</b></div>`).join('') : `<div class="empty"><div class="ei">🏆</div><b>No winners yet</b>The leaderboard will fill up as players win matches.</div>`;
+  };
+  $('#lbt').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; cur = b.dataset.p; LS.set('hz_lb', cur); load().catch(fail); });
+  S.reloadPage = () => load(true);
+  await load(ctx.quiet);
+  poll(() => load(true).catch(() => {}), 30000);
+};
+
+/* ---- wallet */
+const TXN = {
+  deposit: ['Deposit', '➕'], entry_fee: ['Entry Fee', '🎮'], win: ['Winnings', '🏆'], referral_bonus: ['Referral Bonus', '🎁'], withdrawal: ['Withdrawal', '🏦'],
+  withdrawal_refund: ['Withdrawal Refund', '↩️'], refund: ['Refund', '↩️'], admin_credit: ['Credited by Admin', '➕'], admin_debit: ['Deducted by Admin', '➖'],
+};
+const WF = [['all', 'All'], ['deposit', 'Deposits'], ['entry', 'Entry Fees'], ['win', 'Winnings'], ['referral', 'Referral'], ['withdrawal', 'Withdrawals'], ['refund', 'Refunds']];
+function txnRow(t) {
+  const [name, ic] = TXN[t.type] || [t.type, '💳'];
+  const net = (t.dep || 0) + (t.win || 0);
+  const sign = t.type === 'deposit' && t.status !== 'success' ? 0 : net;
+  const st = t.status === 'success' ? '' : `<div><span class="st ${esc(t.status)}">${esc(t.status.toUpperCase())}</span></div>`;
+  const pend = t.type === 'deposit' && t.status === 'pending';
+  return `<${pend ? 'button data-act="track" data-o="' + esc(t.ref) + '" ' : 'div '}class="li"><div class="ic" style="font-size:18px">${ic}</div><div class="tx"><b>${name}${t.matchId ? ` • MATCH ID #${t.matchId}` : ''}</b><small>${fmt(t.at)} IST</small><small>${esc(t.note || t.ref || '')}</small></div>
+    <div class="amt ${sign > 0 ? 'plus' : sign < 0 ? 'minus' : ''}">${sign === 0 ? inr(t.amount) : (sign > 0 ? '+' : '−') + inr(Math.abs(sign))}${st}</div></${pend ? 'button' : 'div'}>`;
+}
+pages.wallet = async (ctx) => {
+  headerMain(); if (!ctx.quiet) setView(ctx, skeleton(1, 200) + skeleton(3, 70));
+  const r = await api('/wallet'); S.user = r.data.user; headerMain(); const u = S.user;
+  let filter = LS.get('hz_wf') || 'all', page = 0;
+  setView(ctx, `<div class="wallet-card"><small>Total Balance</small><div class="tot">${inr(u.balance, 2)}</div><div class="split"><div><small>Deposit Balance</small><b>${inr(u.deposit, 2)}</b></div><div><small>Winning Balance</small><b>${inr(u.winning, 2)}</b></div></div>
+    <div class="wbtns"><button class="btn" data-act="deposit">${I.plus} ADD MONEY</button><button class="btn w" data-act="go" data-to="withdraw">WITHDRAW</button></div></div>
+    <h3 class="sec">Transaction History</h3><div class="chips" id="wf">${WF.map((f) => `<button class="chip ${f[0] === filter ? 'on' : ''}" data-f="${f[0]}">${f[1]}</button>`).join('')}</div><div id="tx"></div><div id="more"></div>`);
+  const load = async (reset, quiet) => {
+    if (reset) { page = 0; if (!quiet) $('#tx').innerHTML = skeleton(3, 64); }
+    const t = await api(`/wallet/txns?filter=${filter}&page=${page}`); if (!ctx.alive()) return;
+    const html = t.data.txns.map(txnRow).join('');
+    if (reset) $('#tx').innerHTML = html ? `<div class="list">${html}</div>` : `<div class="empty"><div class="ei">🧾</div><b>No transactions</b>Your wallet activity will show up here.</div>`;
+    else $('#tx .list').insertAdjacentHTML('beforeend', html);
+    $('#more').innerHTML = t.data.more ? `<button class="btn ghost" style="margin-top:12px" id="mbtn">Load more</button>` : '';
+    const mb = $('#mbtn'); if (mb) mb.onclick = () => { page++; busy(mb, true); load(false).catch(fail); };
+  };
+  $('#wf').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; LS.set('hz_wf', filter); $$('#wf .chip').forEach((x) => x.classList.toggle('on', x === b)); load(true).catch(fail); });
+  S.reloadPage = () => route(true);
+  await load(true);
+  poll(() => load(true, true).catch(() => {}), 30000);
+};
+
+/* ---- deposit */
+pages.deposit = async (ctx) => {
+  headerSub('Add Money');
+  const r = await api('/wallet'); const c = r.data.config; S.user = r.data.user;
+  const chips = [100, 200, 500, 1000].filter((a) => a >= c.minDeposit && (!c.maxDeposit || a <= c.maxDeposit));
+  setView(ctx, `<div class="card"><div class="field"><label>Enter Amount (₹)</label><div class="inp"><b style="color:#94a3b8">₹</b><input id="d-amt" type="number" inputmode="numeric" min="${c.minDeposit}" max="${c.maxDeposit}" placeholder="0"></div>
+    <div class="chipamt">${chips.map((a) => `<button data-act="chipamt" data-a="${a}">₹${a}</button>`).join('')}</div>
+    <div class="hint">Min ${inr(c.minDeposit)} • Max ${inr(c.maxDeposit)}</div></div>
+    <button class="btn" id="d-go">PROCEED TO PAY</button>
+    <p class="hint" style="text-align:center;margin-top:12px">🔒 Wallet is credited only after your payment is verified by the payment provider.</p></div>`);
+  $('#d-go').addEventListener('click', async (e) => { const btn = e.currentTarget;
+    const a = Number($('#d-amt').value);
+    if (!Number.isInteger(a) || a <= 0) return toast('Enter a whole rupee amount', 'bad');
+    if (a < c.minDeposit) return toast(`Minimum deposit is ${inr(c.minDeposit)}`, 'bad');
+    if (c.maxDeposit && a > c.maxDeposit) return toast(`Maximum deposit is ${inr(c.maxDeposit)}`, 'bad');
+    busy(btn, true);
+    try {
+      const o = (await api('/deposit/create', { method: 'POST', body: { amount: a } })).data;
+      LS.set('hz_order', JSON.stringify({ id: o.orderId, amount: o.amount, payUrl: o.payUrl, details: o.details }));
+      if (o.payUrl) window.open(o.payUrl, '_blank', 'noopener');
+      trackDeposit(o);
+    } catch (er) { fail(er); } finally { busy(btn, false); }
+  });
+};
+const UTR = { none: 'Waiting for payment', pending: 'UTR submitted – verifying', verified: 'Payment verified', expired_unverified: 'Expired – not verified', rejected: 'Payment rejected' };
+function trackDeposit(o) {
+  let stop = false, tries = 0;
+  const id = o.orderId || o.id;
+  const body = (d) => {
+    const st = d ? d.status : 'pending';
+    const icon = st === 'success' ? '<div class="tick" style="background:#dcfce7;color:#16a34a"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>' : st === 'pending' ? '<div class="tick" style="background:#eff6ff"><div class="spinner b"></div></div>' : '<div class="tick" style="background:#fee2e2;color:#dc2626"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></div>';
+    const title = { pending: 'Waiting for payment…', success: 'Payment Successful!', failed: 'Payment Failed', rejected: 'Payment Rejected', expired: 'Order Expired' }[st] || st;
+    const det = (o.details || []).map((x) => `<div><span style="text-transform:capitalize">${esc(x.k)}</span><b style="word-break:break-all;text-align:right">${esc(x.v)}</b></div>`).join('');
+    return `${sheetHead('Deposit')}<div class="okbox">${icon}<h2 style="margin:0">${title}</h2><p class="sub" style="margin:4px 0 12px">${st === 'pending' ? 'Complete the payment, then come back here. This updates automatically.' : st === 'success' ? `${inr((d && d.amount) || o.amount, 2)} added to your wallet.` : esc((d && d.note) || 'Please try again.')}</p></div>
+    <div class="sum"><div><span>Amount</span><b>${inr((d && d.amount) || o.amount, 2)}</b></div><div><span>Order ID</span><b style="font-size:11px">${esc(id)}</b></div><div><span>UTR status</span><b>${esc(UTR[d ? d.utrStatus : 'none'] || (d && d.utrStatus) || 'Waiting for payment')}</b></div>${d && d.utr ? `<div><span>UTR</span><b>${esc(d.utr)}</b></div>` : ''}${det}</div>
+    ${st === 'pending' ? `${(o.payUrl || (d && d.payUrl)) ? `<a class="btn" href="${esc(o.payUrl || d.payUrl)}" target="_blank" rel="noopener">OPEN PAYMENT PAGE</a>` : ''}<button class="btn ghost" style="margin-top:10px" id="dchk">${I.refresh} CHECK STATUS</button>` : `<button class="btn" data-act="${st === 'success' ? 'go' : 'deposit'}" data-to="wallet">${st === 'success' ? 'DONE' : 'TRY AGAIN'}</button>`}`;
+  };
+  const s = openSheet(body(null), () => { stop = true; });
+  const paint = (d) => { if (stop) return; const sh = $('#sheetbg .sheet'); if (!sh) return; sh.innerHTML = `<div class="grab"></div>` + body(d); const b = $('#dchk'); if (b) b.onclick = () => check(true); };
+  const done = async (d) => { LS.del('hz_order'); if (d.status === 'success') { await refreshMe().catch(() => {}); headerMain(); toast('Wallet credited ' + inr(d.amount, 2), 'ok'); if (location.hash === '#wallet') route(true); } };
+  async function check(manual) {
+    if (stop) return;
+    try {
+      const d = (await api('/deposit/' + encodeURIComponent(id))).data; tries++;
+      if (d.status !== 'pending') { paint(d); return done(d); }
+      paint(d); if (manual) toast('Still pending – we will keep checking');
+    } catch (e) { if (manual) fail(e); }
+    if (!stop && tries < 450) setTimeout(() => check(false), 4000);
+  }
+  const b = $('#dchk', s); if (b) b.onclick = () => check(true);
+  setTimeout(() => check(false), 3000);
+}
+async function resumeDeposit() {
+  let o; try { o = JSON.parse(LS.get('hz_order') || 'null'); } catch { o = null; }
+  if (!o || !o.id) return;
+  try {
+    const d = (await api('/deposit/' + encodeURIComponent(o.id))).data;
+    if (d.status === 'pending') trackDeposit({ orderId: o.id, amount: o.amount, payUrl: o.payUrl, details: o.details });
+    else { LS.del('hz_order'); if (d.status === 'success') { await refreshMe().catch(() => {}); headerMain(); toast('Deposit of ' + inr(d.amount, 2) + ' credited ✔', 'ok'); route(true); } else toast('Last deposit ' + d.status, 'bad'); }
+  } catch { /* ignore */ }
+}
+
+/* ---- withdraw */
+pages.withdraw = async (ctx) => {
+  headerSub('Withdraw');
+  const [w, hist] = await Promise.all([api('/wallet'), api('/withdrawals')]);
+  const c = w.data.config; S.user = w.data.user; const u = S.user; let method = 'bank';
+  if (!c.withdrawEnabled) return setView(ctx, `<div class="empty"><div class="ei">⏸️</div><b>Withdrawals paused</b>Withdrawals are temporarily disabled. Please try again later.</div>`);
+  const field = (id, label, ph, extra) => `<div class="field"><label>${label}</label><div class="inp"><input id="${id}" placeholder="${ph}" ${extra || ''}></div></div>`;
+  setView(ctx, `<div class="card"><div class="sum" style="margin-top:0"><div><span>Winning balance (withdrawable)</span><b style="color:var(--green)">${inr(u.winning, 2)}</b></div><div><span>Min / Max</span><b>${inr(c.minWithdraw)} / ${inr(c.maxWithdraw)}</b></div></div>
+    <div class="seg" id="wm"><button class="on" data-m="bank">BANK</button><button data-m="upi">UPI</button></div>
+    <div id="wbank">${field('w-name', 'Account Holder Name', 'As per bank records', 'maxlength="60" autocomplete="off"')}${field('w-acc', 'Account Number', 'Enter account number', 'inputmode="numeric" maxlength="18" autocomplete="off"')}${field('w-acc2', 'Confirm Account Number', 'Re-enter account number', 'inputmode="numeric" maxlength="18" autocomplete="off"')}${field('w-ifsc', 'IFSC Code', 'e.g. SBIN0001234', 'maxlength="11" style="text-transform:uppercase" autocomplete="off"')}${field('w-mob', 'Mobile Number', '10-digit mobile', 'type="tel" inputmode="numeric" maxlength="10"')}</div>
+    <div id="wupi" class="hidden">${field('w-upi', 'UPI ID', 'name@bank', 'autocomplete="off" autocapitalize="none"')}</div>
+    ${field('w-amt', 'Amount (₹)', 'Enter amount', 'type="number" inputmode="numeric" min="' + c.minWithdraw + '"')}
+    <div class="sum" id="wsum"><div><span>Withdraw amount</span><b id="s-a">₹0</b></div><div><span>GST deduction (${c.gst}%)</span><b id="s-g" style="color:var(--red)">− ₹0</b></div><div class="tot"><span>Final payable</span><span id="s-f">₹0</span></div></div>
+    <button class="btn" id="w-go">SUBMIT WITHDRAWAL</button><p class="hint" style="text-align:center;margin-top:10px">Only winning balance can be withdrawn. Rejected requests are refunded automatically.</p></div>
+    <h3 class="sec">Withdrawal History</h3>${hist.data.withdrawals.length ? `<div class="list">${hist.data.withdrawals.map((x) => `<div class="li"><div class="ic">🏦</div><div class="tx"><b>${inr(x.amount, 2)} • ${x.method.toUpperCase()}</b><small>${esc(x.to)}</small><small>${fmt(x.at)} IST • Payable ${inr(x.finalAmount, 2)}${x.gst > 0 ? ` (GST ${inr(x.gst, 2)})` : ''}</small>${x.status === 'rejected' && x.reason ? `<small style="color:var(--red)">Reason: ${esc(x.reason)}</small>` : ''}${x.payoutRef ? `<small>Ref: ${esc(x.payoutRef)}</small>` : ''}</div><span class="st ${x.status}">${x.status.toUpperCase()}</span></div>`).join('')}</div>` : `<div class="empty"><div class="ei">🏦</div><b>No withdrawals yet</b></div>`}`);
+  const calc = () => { const a = Number($('#w-amt').value) || 0; const g = Math.round(a * 100 * c.gst / 100) / 100; $('#s-a').textContent = inr(a, 2); $('#s-g').textContent = '− ' + inr(g, 2); $('#s-f').textContent = inr(a - g, 2); return { a, g, f: a - g }; };
+  $('#w-amt').addEventListener('input', calc);
+  $('#wm').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; method = b.dataset.m; $$('#wm button').forEach((x) => x.classList.toggle('on', x === b)); $('#wbank').classList.toggle('hidden', method !== 'bank'); $('#wupi').classList.toggle('hidden', method !== 'upi'); });
+  $('#w-go').addEventListener('click', async (e) => { const btn = e.currentTarget;
+    const { a, g, f } = calc(); const body = { method, amount: a };
+    if (method === 'bank') {
+      body.holderName = $('#w-name').value.trim(); body.accountNo = $('#w-acc').value.trim(); body.confirmAccountNo = $('#w-acc2').value.trim(); body.ifsc = $('#w-ifsc').value.trim().toUpperCase(); body.mobile = $('#w-mob').value.trim();
+      if (body.holderName.length < 2) return toast('Enter account holder name', 'bad');
+      if (!/^\d{9,18}$/.test(body.accountNo)) return toast('Enter a valid account number', 'bad');
+      if (body.accountNo !== body.confirmAccountNo) return toast('Account numbers do not match', 'bad');
+      if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(body.ifsc)) return toast('Enter a valid IFSC code', 'bad');
+      if (!/^[6-9]\d{9}$/.test(body.mobile)) return toast('Enter a valid mobile number', 'bad');
+    } else { body.upiId = $('#w-upi').value.trim(); if (!/^[a-zA-Z0-9._-]{2,50}@[a-zA-Z0-9]{2,30}$/.test(body.upiId)) return toast('Enter a valid UPI ID', 'bad'); }
+    if (!(a > 0)) return toast('Enter amount', 'bad');
+    if (a < c.minWithdraw) return toast(`Minimum withdrawal is ${inr(c.minWithdraw)}`, 'bad');
+    if (c.maxWithdraw && a > c.maxWithdraw) return toast(`Maximum withdrawal is ${inr(c.maxWithdraw)}`, 'bad');
+    if (a > u.winning) return toast('Amount exceeds your winning balance', 'bad');
+    if (!confirm(`Withdraw ${inr(a, 2)}?\nGST deduction: ${inr(g, 2)}\nYou will receive: ${inr(f, 2)}`)) return;
+    busy(btn, true);
+    try { const r = await api('/withdraw', { method: 'POST', body }); toast(r.message, 'ok'); await refreshMe().catch(() => {}); route(); } catch (er) { fail(er); } finally { busy(btn, false); }
+  });
+};
+
+/* ---- referrals */
+pages.referrals = async (ctx) => {
+  headerSub('My Referrals'); if (!ctx.quiet) setView(ctx, skeleton(3, 100));
+  const r = (await api('/referrals')).data; const link = `${location.origin}/index.html?ref=${r.code}`;
+  const rw = [r.rewards.friend > 0 ? `Your friend gets ${inr(r.rewards.friend)} on signup` : '', r.rewards.signup > 0 ? `You get ${inr(r.rewards.signup)} per referral${r.rewards.minDeposit > 0 ? ` after their first deposit of ${inr(r.rewards.minDeposit)}+` : ''}` : '', r.rewards.percent > 0 ? `You earn ${r.rewards.percent}% of their deposits` : ''].filter(Boolean);
+  setView(ctx, `<div class="card" style="text-align:center"><small style="color:var(--muted)">Your referral code</small><div class="codebox"><b>${esc(r.code)}</b><button class="btn sm" data-act="copy" data-v="${esc(r.code)}">${I.copy} COPY</button></div>
+    <button class="btn" data-act="share" data-link="${esc(link)}">${I.share} SHARE INVITE LINK</button><div class="hint" style="word-break:break-all;margin-top:8px">${esc(link)}</div>${rw.length ? `<div class="sum" style="text-align:left;margin-top:12px">${rw.map((x) => `<div>🎁 ${esc(x)}</div>`).join('')}</div>` : ''}</div>
+    <div class="rwd"><div><b>${r.total}</b><small>Total Referred</small></div><div><b>${inr(r.earned, 2)}</b><small>Total Earned</small></div></div>
+    <h3 class="sec">Referred Users</h3>` + (r.list.length ? `<div class="list">${r.list.map((x) => `<div class="li"><div class="av" style="width:38px;height:38px;font-size:15px">${esc(x.name.charAt(0))}</div><div class="tx"><b>${esc(x.name)}</b><small>${esc(x.mobile)} • ${fmt(x.at)}</small></div><div class="amt">${x.earned > 0 ? '+' + inr(x.earned, 2) : ''}<div><span class="st ${x.status}">${x.status === 'credited' ? 'BONUS CREDITED' : 'PENDING'}</span></div></div></div>`).join('')}</div>` : `<div class="empty"><div class="ei">👥</div><b>No referrals yet</b>Share your link and earn when friends join.</div>`));
+};
+
+/* ---- announcements */
+pages.announcements = async (ctx) => {
+  headerSub('Announcements'); if (!ctx.quiet) setView(ctx, skeleton(3, 80));
+  const d = (await api('/announcements')).data; let tab = d.notifications.some((n) => !n.read) ? 'n' : 'a';
+  const draw = () => {
+    $('#al').innerHTML = tab === 'a'
+      ? (d.announcements.length ? d.announcements.map((a) => `<div class="note"><h5>📢 ${esc(a.title)}</h5><p>${esc(a.body)}</p><small>${fmt(a.created_at)} IST</small></div>`).join('') : `<div class="empty"><div class="ei">📢</div><b>No announcements</b>Updates from the team will appear here.</div>`)
+      : (d.notifications.length ? d.notifications.map((a) => `<div class="note ${a.read ? '' : 'unread'}"><h5>${esc(a.title)}</h5><p>${esc(a.body)}</p><small>${fmt(a.created_at)} IST</small></div>`).join('') : `<div class="empty"><div class="ei">🔔</div><b>No notifications</b>Match results, refunds and bonuses show here.</div>`);
+    $$('#at button').forEach((b) => b.classList.toggle('on', b.dataset.t === tab));
+  };
+  setView(ctx, `<div class="tabs" id="at"><button data-t="a">Announcements</button><button data-t="n">My Notifications</button></div><div id="al"></div>`);
+  $('#at').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { tab = b.dataset.t; draw(); } });
+  draw();
+  if (d.notifications.some((n) => !n.read)) api('/notifications/read', { method: 'POST' }).then(() => { S.unread = 0; }).catch(() => {});
+};
+
+/* ---- support */
+pages.support = async (ctx) => {
+  headerSub('Customer Support');
+  const c = (await api('/config')).data; S.cfg = c; const s = c.support;
+  const items = [[s.whatsapp, 'WhatsApp', '💬', s.whatsapp], [s.telegram, 'Telegram', '✈️', s.telegram], [s.email, 'Email', '✉️', s.email ? 'mailto:' + s.email : '']].filter((x) => x[0]);
+  setView(ctx, items.length ? `<div class="list">${items.map((x) => `<a class="li" href="${esc(x[3])}" target="_blank" rel="noopener"><div class="ic" style="font-size:20px">${x[2]}</div><div class="tx"><b>${x[1]}</b><small>${esc(x[0])}</small></div>${I.chev}</a>`).join('')}</div>` : `<div class="empty"><div class="ei">🎧</div><b>Support contacts not available</b>Please check back later.</div>`);
+};
+
+/* ---- profile */
+let showMob = false;
+pages.profile = async (ctx) => {
+  headerMain(); await refreshMe().catch(() => {}); headerMain();
+  const u = S.user, c = S.cfg;
+  const m = u.mobile; const masked = m.slice(0, 2) + '******' + m.slice(-2);
+  const item = (act, ic, t, extra) => `<button class="li" data-act="${act}"><div class="ic">${ic}</div><div class="tx"><b>${t}</b></div>${extra || ''}${I.chev}</button>`;
+  setView(ctx, `<div class="card pcard">${avatarHTML(u)}<h3>${esc(u.name)}</h3><div class="mob"><span id="pm">+91 ${showMob ? m : masked}</span><button data-act="mob" aria-label="Toggle mobile">${showMob ? I.eyeoff : I.eye}</button></div><br><button class="btn sm ghost" data-act="edit" style="display:inline-flex">${I.edit} Edit Profile</button></div>
+    <div class="list" style="margin-top:16px">${item('go" data-to="wallet', I.wallet, 'My Wallet')}${item('go" data-to="matches/upcoming', I.lb, 'My Matches')}${item('go" data-to="referrals', I.users, 'My Referrals')}${item('go" data-to="announcements', I.bell, 'Announcements', S.unread ? `<span class="dot">${S.unread}</span>` : '')}${item('go" data-to="support', I.help, 'Customer Support')}${c && c.devLink ? `<a class="li" href="${esc(c.devLink)}" target="_blank" rel="noopener"><div class="ic">${I.code}</div><div class="tx"><b>Want to create app? Contact to developer</b></div>${I.chev}</a>` : ''}</div>
+    <button class="btn red" style="margin-top:18px" data-act="logout">${I.out} LOGOUT</button>`);
+};
+function editProfile() {
+  const u = S.user; let avatarData = null;
+  const s = openSheet(`${sheetHead('Edit Profile')}<div style="text-align:center;margin-bottom:12px"><div id="e-av" style="display:inline-block">${avatarHTML(u)}</div><br><label class="btn sm ghost" style="display:inline-flex;margin-top:8px;cursor:pointer">Change photo<input type="file" id="e-file" accept="image/*" hidden></label></div>
+    <div class="field"><label>Name</label><div class="inp"><input id="e-name" maxlength="30" value="${esc(u.name)}"></div></div><button class="btn" id="e-save">SAVE CHANGES</button>
+    <h3 style="margin:22px 0 10px;font-size:15px">Change Password</h3>
+    <div class="field"><div class="inp"><input id="e-old" type="password" placeholder="Current password" autocomplete="current-password"></div></div>
+    <div class="field"><div class="inp"><input id="e-new" type="password" placeholder="New password (min 6)" autocomplete="new-password"></div></div><button class="btn ghost" id="e-pw">UPDATE PASSWORD</button>`);
+  $('#e-file', s).addEventListener('change', async (e) => { const f = e.target.files[0]; if (!f) return; try { avatarData = await compress(f, 256, 'image/jpeg', 0.82); $('#e-av', s).innerHTML = `<div class="av"><img src="${avatarData}" alt=""></div>`; } catch (er) { fail(er); } });
+  $('#e-save', s).addEventListener('click', async (e) => { const btn = e.currentTarget;
+    const name = $('#e-name', s).value.trim(); if (name.length < 2) return toast('Enter a valid name', 'bad'); busy(btn, true);
+    try { let r = await api('/me', { method: 'PUT', body: { name } }); if (avatarData) r = await api('/me/avatar', { method: 'PUT', body: { dataUrl: avatarData } }); S.user = r.data.user; closeSheet(); toast('Profile updated', 'ok'); route(true); } catch (er) { fail(er); } finally { busy(btn, false); }
+  });
+  $('#e-pw', s).addEventListener('click', async (e) => { const btn = e.currentTarget;
+    const o = $('#e-old', s).value, n = $('#e-new', s).value; if (!o || n.length < 6) return toast('Enter current password and a new one (min 6)', 'bad'); busy(btn, true);
+    try { const r = await api('/me/password', { method: 'PUT', body: { oldPassword: o, newPassword: n } }); S.token = r.data.token; LS.set('hz_token', r.data.token); closeSheet(); toast('Password changed', 'ok'); } catch (er) { fail(er); } finally { busy(btn, false); }
+  });
+}
+function logout(auto) {
+  S.token = null; S.user = null; LS.del('hz_token'); LS.del('hz_order'); stopPoll(); closeSheet();
+  history.replaceState(null, '', location.pathname + location.search.replace(/[?&]ref=[^&]*/, '')); clearFull(); showAuth('p-login');
+  if (auto === true) toast('Session expired. Please login again.', 'bad');
+}
+
+/* ------------------------------------------------------------ global events */
+const actions = {
+  ...authActions,
+  tab(t) { location.hash = t.dataset.t; },
+  go(t) { closeSheet(); location.hash = t.dataset.to; },
+  back() { if (history.length > 1) history.back(); else location.hash = 'home'; },
+  reload() { route(); },
+  closesheet() { closeSheet(); },
+  deposit() { closeSheet(); location.hash = 'deposit'; },
+  chipamt(t) { $('#d-amt').value = t.dataset.a; },
+  copy(t) { copyText(t.dataset.v); },
+  join(t) { joinFlow(t.dataset.id); },
+  players(t) { showPlayers(t.dataset.id); },
+  track(t) { trackDeposit({ orderId: t.dataset.o }); },
+  edit() { editProfile(); },
+  mob() { showMob = !showMob; route(true); },
+  logout() { logout(); },
+  async share(t) {
+    const link = t.dataset.link; const text = `Join me on ${S.cfg.appName} and win real cash in Free Fire tournaments! Use my link:`;
+    if (navigator.share) { try { await navigator.share({ title: S.cfg.appName, text, url: link }); return; } catch { return; } }
+    copyText(`${text} ${link}`);
+  },
+};
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-act]'); if (!t) return;
+  const a = t.dataset.act; if (!actions[a]) return;
+  if (t.tagName === 'A' && a !== 'x') e.preventDefault();
+  actions[a](t, e);
+});
+document.addEventListener('submit', (e) => { const f = e.target.closest('[data-form]'); if (!f) return; e.preventDefault(); const h = forms[f.dataset.form]; if (h) h(f); });
+window.addEventListener('hashchange', () => { closeSheet(); if (S.user) route(); });
+$$('.eye').forEach((b) => (b.innerHTML = I.eye));
+$('#l-mobile').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
+$('#r-mobile').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
+$('#f-mobile').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
+$('#r-ref').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+otpBuild();
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.user && S.token) (S.reloadPage || (() => route(true)))(); });
+
+/* pull-to-refresh */
+(() => {
+  let y0 = 0, on = false, dy = 0; const p = $('#ptr'); p.innerHTML = I.refresh;
+  document.addEventListener('touchstart', (e) => { on = !!S.user && window.scrollY <= 0 && !$('#sheetbg') && e.touches.length === 1; y0 = e.touches[0].clientY; dy = 0; }, { passive: true });
+  document.addEventListener('touchmove', (e) => { if (!on) return; dy = e.touches[0].clientY - y0; if (dy > 0) { p.style.top = Math.min(dy / 2, 60) - 40 + 'px'; p.firstChild.style.transform = `rotate(${dy * 2}deg)`; } }, { passive: true });
+  document.addEventListener('touchend', async () => {
+    if (!on) return; on = false;
+    if (dy > 110) { p.classList.add('spin'); p.style.top = '16px'; try { await refreshMe(); headerMain(); if (S.reloadPage && /^#(game|matches|leaderboard)/.test(location.hash)) await S.reloadPage(); else route(true); } catch (er) { fail(er); } setTimeout(() => { p.classList.remove('spin'); p.style.top = '-50px'; }, 500); }
+    else p.style.top = '-50px';
+  });
+})();
+
+/* ------------------------------------------------------------ boot */
+(async function boot() {
+  try { S.cfg = (await api('/config')).data; }
+  catch (e) { return fullMsg('📡', 'Connection problem', e.message, '<button class="btn" style="max-width:240px" onclick="location.reload()">Retry</button>'); }
+  if (S.cfg.maintenance) return showMaint();
+  if (!S.token) { showAuth(); return; }
+  try { await refreshMe(); startApp(); }
+  catch (e) {
+    if (e.code === 'BANNED') return showBlocked(e.message);
+    if (e.status === 401) { S.token = null; LS.del('hz_token'); return showAuth(); }
+    if (e.code === 'MAINTENANCE') return;
+    fullMsg('📡', 'Connection problem', e.message, '<button class="btn" style="max-width:240px" onclick="location.reload()">Retry</button>');
+  }
+})();
+</script>
+</body>
+</html>

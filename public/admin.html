@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Host Zone – Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#2563eb;--bg:#f1f3f6;--navy:#0f172a;--text:#0f172a;--muted:#64748b;--green:#16a34a;--red:#dc2626;--amber:#d97706;--line:#e2e8f0;--sh:0 4px 18px rgba(15,23,42,.07)}
+*{box-sizing:border-box}
+html,body{margin:0;font-family:'Poppins',system-ui,sans-serif;font-size:13.5px;color:var(--text);background:var(--bg)}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:13.5px;color:var(--text)}
+svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hidden{display:none!important}
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#0f172a,#1e3a8a)}
+.login .box{background:#fff;border-radius:24px;padding:30px;width:100%;max-width:380px;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.login h1{margin:0 0 4px;font-size:22px;color:var(--blue)}.login p{margin:0 0 20px;color:var(--muted)}
+/* layout */
+.app{display:flex;min-height:100vh}
+.side{width:236px;background:var(--navy);color:#cbd5e1;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50;transition:transform .25s}
+.side .lg{padding:20px 18px;font-weight:700;font-size:18px;color:#fff;display:flex;align-items:center;gap:10px}
+.side .lg i{width:34px;height:34px;border-radius:10px;background:var(--blue);display:grid;place-items:center;font-style:normal;overflow:hidden}
+.side .lg i img{width:100%;height:100%;object-fit:cover}
+.side nav{flex:1;overflow:auto;padding:4px 10px}
+.side nav button{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border-radius:12px;color:#cbd5e1;font-weight:500;margin-bottom:2px;text-align:left;transition:.15s}
+.side nav button:hover{background:rgba(255,255,255,.07)}
+.side nav button.on{background:var(--blue);color:#fff}
+.side .ft{padding:12px 14px;border-top:1px solid rgba(255,255,255,.1);font-size:12px}
+.main{flex:1;margin-left:236px;min-width:0}
+.top{display:flex;align-items:center;gap:12px;padding:14px 22px;background:#fff;box-shadow:var(--sh);position:sticky;top:0;z-index:40}
+.top h2{margin:0;font-size:18px;flex:1}
+.burger{display:none;width:38px;height:38px;border-radius:10px;background:#f1f5f9;place-items:center}
+.content{padding:22px;max-width:1300px}
+.scrim{display:none}
+@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:none}.main{margin-left:0}.burger{display:grid}.content{padding:14px}.scrim.on{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:45}}
+/* ui */
+.card{background:#fff;border-radius:18px;box-shadow:var(--sh);padding:18px;margin-bottom:18px}
+.card h3{margin:0 0 14px;font-size:15px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.stat{background:#fff;border-radius:18px;padding:16px;box-shadow:var(--sh);border-left:5px solid var(--blue)}
+.stat small{color:var(--muted);font-weight:500;display:block}.stat b{font-size:22px;display:block;margin-top:2px}
+.stat.g{border-color:var(--green)}.stat.r{border-color:var(--red)}.stat.a{border-color:var(--amber)}.stat.p{border-color:#7c3aed}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:11px;background:var(--blue);color:#fff;font-weight:600;font-size:13px;transition:.15s}
+.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:6px 11px;font-size:12px;border-radius:9px}
+.btn.g{background:var(--green)}.btn.r{background:var(--red)}.btn.o{background:#e2e8f0;color:#334155}.btn.a{background:var(--amber)}.btn.p{background:#7c3aed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.row .sp{flex:1}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:4px}
+.fld input,.fld select,.fld textarea,.in{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:11px;background:#fff;outline:0}
+.fld input:focus,.fld select:focus,.fld textarea:focus,.in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.in{width:auto;min-width:130px}
+.fld small{color:var(--muted);font-size:11px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 14px}
+.tw{overflow-x:auto;border-radius:14px}
+table{width:100%;border-collapse:collapse;background:#fff}
+th{background:#f8fafc;text-align:left;font-size:11px;letter-spacing:.4px;color:var(--muted);padding:10px 12px;white-space:nowrap;text-transform:uppercase}
+td{padding:10px 12px;border-top:1px solid #f1f5f9;vertical-align:middle}
+tr:hover td{background:#fafcff}
+.bd{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:600;text-transform:capitalize}
+.bd.success,.bd.paid,.bd.completed,.bd.active,.bd.credited,.bd.verified{background:#dcfce7;color:#15803d}
+.bd.pending,.bd.approved,.bd.upcoming{background:#fef9c3;color:#a16207}
+.bd.ongoing{background:#dbeafe;color:#1d4ed8}
+.bd.failed,.bd.rejected,.bd.expired,.bd.cancelled,.bd.banned{background:#fee2e2;color:#b91c1c}
+.thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#e2e8f0}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tabs button{padding:8px 16px;border-radius:999px;background:#fff;font-weight:600;font-size:12.5px;color:var(--muted);box-shadow:var(--sh)}
+.tabs button.on{background:var(--blue);color:#fff}
+.mbg{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto;animation:f .2s}
+@keyframes f{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:560px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.3);animation:u .25s}
+.modal.w{max-width:900px}
+@keyframes u{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.modal h3{margin:0 0 16px;font-size:17px;display:flex;justify-content:space-between;align-items:center}
+.modal h3 button{width:30px;height:30px;border-radius:50%;background:#f1f5f9;display:grid;place-items:center}
+.toasts{position:fixed;top:14px;right:14px;z-index:300;display:flex;flex-direction:column;gap:8px}
+.toast{background:#0f172a;color:#fff;padding:11px 16px;border-radius:12px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:u .25s;max-width:360px}
+.toast.ok{background:#15803d}.toast.bad{background:#b91c1c}
+.sk{height:90px;border-radius:16px;margin-bottom:12px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 37%,#e5e7eb 63%);background-size:400% 100%;animation:sk 1.3s infinite}
+@keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.chart{display:flex;align-items:flex-end;gap:4px;height:180px;padding-top:10px;overflow-x:auto}
+.chart .col{flex:1;min-width:14px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.chart .bars{display:flex;align-items:flex-end;gap:2px;height:100%;width:100%;justify-content:center}
+.chart .bars i{display:block;width:30%;min-width:4px;border-radius:4px 4px 0 0}
+.chart small{font-size:9px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.lg-d{display:flex;gap:14px;font-size:12px;margin-bottom:6px;flex-wrap:wrap}.lg-d i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.pre{background:#f8fafc;border-radius:12px;padding:12px;font-size:12.5px}
+.pre div{display:flex;justify-content:space-between;padding:3px 0}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.mut{color:var(--muted)}.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
+.chk{width:18px;height:18px;accent-color:var(--blue)}
+.imgp{display:flex;align-items:center;gap:12px}.imgp img{width:64px;height:64px;border-radius:12px;object-fit:cover;background:#e2e8f0}
+.sw{display:flex;align-items:center;gap:8px;font-weight:500}.sw input{width:18px;height:18px;accent-color:var(--blue)}
+</style>
+</head>
+<body>
+<div id="login" class="login hidden">
+  <form class="box" id="lf">
+    <h1>Host Zone Admin</h1><p>Sign in to manage tournaments</p>
+    <div class="fld"><label>Username</label><input id="lu" autocomplete="username" required></div>
+    <div class="fld"><label>Password</label><input id="lp" type="password" autocomplete="current-password" required></div>
+    <button class="btn" style="width:100%;padding:12px" id="lb">LOGIN</button>
+  </form>
+</div>
+
+<div id="app" class="app hidden">
+  <aside class="side" id="side">
+    <div class="lg"><i id="slogo">HZ</i><span id="sname">Host Zone</span></div>
+    <nav id="nav"></nav>
+    <div class="ft"><div class="mut" style="margin-bottom:8px">Signed in as <b id="who" style="color:#fff"></b></div>
+      <button class="btn sm o" id="chpw" style="width:100%;margin-bottom:6px">Change password</button>
+      <button class="btn sm r" id="lo" style="width:100%">Logout</button></div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <div class="top"><button class="burger" id="burger" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><h2 id="title">Dashboard</h2><button class="btn sm o" id="rf">↻ Refresh</button></div>
+    <div class="content" id="pg"></div>
+  </div>
+</div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+'use strict';
+/* Host Zone admin panel. Talks only to /api/admin/* with a separate admin JWT. */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const inr = (n) => '₹' + (Number(n) || 0).toLocaleString('en-IN', { minimumFractionDigits: Number(n) % 1 ? 2 : 0, maximumFractionDigits: 2 });
+const fmt = (d) => d ? new Date(d).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) + ' IST' : '—';
+const LS = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } }, del: (k) => { try { localStorage.removeItem(k); } catch { /* ignore */ } } };
+const A = { token: LS.get('hz_admin'), name: '' };
+const bd = (s) => `<span class="bd ${esc(s)}">${esc(s)}</span>`;
+const bdx = (c, t) => `<span class="bd ${esc(c)}">${esc(t)}</span>`;
+const sk = (n = 3) => Array.from({ length: n }, () => '<div class="sk"></div>').join('');
+const emptyBox = (t, s) => `<div class="empty"><b>${t}</b>${s || ''}</div>`;
+const tbl = (cols, rows, empty) => rows.length ? `<div class="tw"><table><thead><tr>${cols.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>` : emptyBox(empty || 'Nothing here yet');
+
+async function api(path, o = {}) {
+  let r;
+  try { r = await fetch('/api' + path, { method: o.method || 'GET', headers: { 'Content-Type': 'application/json', ...(A.token ? { Authorization: 'Bearer ' + A.token } : {}) }, body: o.body ? JSON.stringify(o.body) : undefined }); }
+  catch { throw new Error('Network error. Check your connection.'); }
+  if (o.raw && r.ok) return r;
+  let j = null; try { j = await r.json(); } catch { /* ignore */ }
+  if (!j) throw new Error('Server error');
+  if (!j.success) { const e = new Error(j.message); e.status = r.status; if (r.status === 401 && A.token && path !== '/admin/login') { doLogout(true); } throw e; }
+  return j;
+}
+function toast(m, t) { const d = document.createElement('div'); d.className = 'toast ' + (t || ''); d.textContent = m; $('#toasts').appendChild(d); setTimeout(() => d.remove(), 3800); }
+const fail = (e) => toast(e.message || 'Error', 'bad');
+const ok = (m) => toast(m, 'ok');
+function busy(b, on) { if (!b) return; if (on) { b.dataset.l = b.innerHTML; b.disabled = true; b.textContent = 'Please wait…'; } else { b.disabled = false; if (b.dataset.l) b.innerHTML = b.dataset.l; } }
+async function act(btn, fn) { busy(btn, true); try { return await fn(); } catch (e) { fail(e); } finally { busy(btn, false); } }
+
+/* ---------- modal */
+let modalStack = [];
+function modal(title, html, wide) {
+  const bg = document.createElement('div'); bg.className = 'mbg';
+  bg.innerHTML = `<div class="modal ${wide ? 'w' : ''}"><h3><span>${title}</span><button data-x aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></h3><div class="mb">${html}</div></div>`;
+  bg.addEventListener('mousedown', (e) => { if (e.target === bg) close(); });
+  $('[data-x]', bg).onclick = () => close();
+  document.body.appendChild(bg); modalStack.push(bg);
+  function close() { bg.remove(); modalStack = modalStack.filter((x) => x !== bg); }
+  return { el: $('.mb', bg), close };
+}
+const closeAll = () => { modalStack.forEach((m) => m.remove()); modalStack = []; };
+function ask(title, label, ph) {
+  return new Promise((res) => {
+    const m = modal(title, `<div class="fld"><label>${label}</label><input id="ask-v" placeholder="${esc(ph || '')}"></div><button class="btn" id="ask-ok">Confirm</button> <button class="btn o" id="ask-no">Cancel</button>`);
+    $('#ask-v', m.el).focus();
+    $('#ask-ok', m.el).onclick = () => { const v = $('#ask-v', m.el).value.trim(); m.close(); res(v); };
+    $('#ask-no', m.el).onclick = () => { m.close(); res(null); };
+    $('#ask-v', m.el).onkeydown = (e) => { if (e.key === 'Enter') $('#ask-ok', m.el).click(); };
+  });
+}
+
+/* ---------- images (client-side resize/compress) */
+const IMG = {};
+function compress(file, max, png, limitKB) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height)), w = Math.round(img.width * k), h = Math.round(img.height * k);
+      const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+      let out;
+      if (png) { x.drawImage(img, 0, 0, w, h); out = c.toDataURL('image/png'); }
+      if (!png || out.length * 0.75 > limitKB * 1024) { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h); out = c.toDataURL('image/jpeg', 0.82); }
+      URL.revokeObjectURL(url);
+      if (out.length * 0.75 > limitKB * 1024) { rej(new Error('Image is too large even after compression. Use a smaller image.')); return; }
+      res(out);
+    };
+    img.onerror = () => rej(new Error('Could not read this image'));
+    img.src = url;
+  });
+}
+function imgField(id, label, cur, max, png, limitKB) {
+  delete IMG[id];
+  setTimeout(() => {
+    const f = $('#' + id); if (!f) return;
+    f.onchange = async () => { const file = f.files[0]; if (!file) return; try { IMG[id] = await compress(file, max, png, limitKB || 280); $('#' + id + '-p').src = IMG[id]; $('#' + id + '-p').style.display = ''; } catch (e) { fail(e); f.value = ''; } };
+  });
+  return `<div class="fld"><label>${label}</label><div class="imgp"><img id="${id}-p" src="${esc(cur || '')}" style="${cur ? '' : 'display:none'}" alt=""><input type="file" id="${id}" accept="image/*"></div></div>`;
+}
+const v = (id) => ($('#' + id) ? $('#' + id).value.trim() : '');
+const chk = (id) => !!($('#' + id) && $('#' + id).checked);
+const istInput = (iso) => { const s = new Date(iso).toLocaleString('sv-SE', { timeZone: 'Asia/Kolkata' }); return { d: s.slice(0, 10), t: s.slice(11, 16) }; };
+const toISO = (d, t) => (d && t ? new Date(`${d}T${t}:00+05:30`).toISOString() : '');
+async function download(path, name) { const r = await api(path, { raw: true }); const b = await r.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+
+/* ---------- shell */
+const NAV = [['dashboard', 'Dashboard', 'M3 12 12 3l9 9M5 10v10h14V10'], ['games', 'Games', 'M6 12h4M8 10v4M15 13h.01M18 11h.01M17.3 5H6.7a4 4 0 0 0-3.9 3.2l-1.3 6A3 3 0 0 0 4.4 18c.8 0 1.5-.4 2-1l1.5-2h8.2l1.5 2c.5.6 1.2 1 2 1a3 3 0 0 0 2.9-3.8l-1.3-6A4 4 0 0 0 17.3 5z'],
+  ['matches', 'Matches', 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z'], ['users', 'Users', 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'],
+  ['deposits', 'Deposits', 'M12 5v14M5 12l7 7 7-7'], ['withdrawals', 'Withdrawals', 'M12 19V5M5 12l7-7 7 7'], ['referrals', 'Referrals', 'M20 12v10H4V12M2 7h20v5H2zM12 22V7'],
+  ['content', 'Banners & Content', 'M3 3h18v18H3zM3 9h18M9 21V9'], ['leaderboard', 'Leaderboard', 'M18 20V10M12 20V4M6 20v-6'], ['logs', 'Reports & Logs', 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8'],
+  ['settings', 'Settings', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z']];
+function showLogin() { $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); }
+function doLogout(auto) { A.token = null; LS.del('hz_admin'); closeAll(); showLogin(); if (auto) toast('Session expired. Login again.', 'bad'); }
+async function showApp() {
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden'); $('#who').textContent = A.name;
+  $('#nav').innerHTML = NAV.map((n) => `<button data-p="${n[0]}"><svg viewBox="0 0 24 24"><path d="${n[2]}"/></svg>${n[1]}</button>`).join('');
+  api('/config').then((r) => { $('#sname').textContent = r.data.appName; if (r.data.logo) $('#slogo').innerHTML = `<img src="${esc(r.data.logo)}" alt="">`; }).catch(() => {});
+  if (!location.hash) location.hash = 'dashboard'; route();
+}
+let rid = 0;
+async function route() {
+  if (!A.token) return;
+  const name = (location.hash.slice(1) || 'dashboard').split('/')[0]; const p = PAGES[name] ? name : 'dashboard';
+  $$('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.p === p));
+  $('#title').textContent = NAV.find((n) => n[0] === p)[1]; $('#side').classList.remove('open'); $('#scrim').classList.remove('on');
+  const my = ++rid; const old = $('#pg'); const fresh = old.cloneNode(false); old.replaceWith(fresh); fresh.innerHTML = sk(3);
+  try { await PAGES[p]($('#pg'), () => my === rid); } catch (e) { if (my === rid) $('#pg').innerHTML = emptyBox('Could not load', esc(e.message)); }
+}
+const PAGES = {};
+
+/* ================= DASHBOARD ================= */
+PAGES.dashboard = async (el) => {
+  const d = (await api('/admin/dashboard')).data; const t = d.totals; let range = 7;
+  const sum = (n, k) => d.series.slice(-n).reduce((a, s) => a + s[k], 0);
+  const draw = () => {
+    const s = d.series.slice(-range); const mx = Math.max(1, ...s.flatMap((x) => [x.deposits, x.entry, x.prizes])); const any = s.some((x) => x.deposits || x.entry || x.prizes || x.signups);
+    $('#ch').innerHTML = any ? `<div class="chart">${s.map((x) => `<div class="col" title="${x.day}\nDeposits ${inr(x.deposits)}\nEntry fees ${inr(x.entry)}\nPrizes ${inr(x.prizes)}\nSignups ${x.signups}"><div class="bars"><i style="height:${x.deposits / mx * 100}%;background:#2563eb"></i><i style="height:${x.entry / mx * 100}%;background:#16a34a"></i><i style="height:${x.prizes / mx * 100}%;background:#7c3aed"></i></div><small>${x.day.slice(5)}</small></div>`).join('')}</div>` : emptyBox('No activity in this period yet');
+    $$('#rg button').forEach((b) => b.classList.toggle('on', Number(b.dataset.r) === range));
+  };
+  const per = (n) => `<div class="stat p"><small>Last ${n === 1 ? 'today' : n + ' days'}</small><div class="pre" style="background:none;padding:6px 0 0"><div><span>Deposits</span><b>${inr(sum(n, 'deposits'))}</b></div><div><span>Entry fees</span><b>${inr(sum(n, 'entry'))}</b></div><div><span>Prizes paid</span><b>${inr(sum(n, 'prizes'))}</b></div><div><span>New users</span><b>${sum(n, 'signups')}</b></div></div></div>`;
+  el.innerHTML = `<div class="grid g4" style="margin-bottom:18px">
+    <div class="stat"><small>Total users</small><b>${t.users}</b></div><div class="stat g"><small>Active today</small><b>${t.activeToday}</b></div>
+    <div class="stat g"><small>Total deposits</small><b>${inr(t.deposits)}</b></div><div class="stat r"><small>Total withdrawals</small><b>${inr(t.withdrawals)}</b></div>
+    <div class="stat a"><small>Pending withdrawals</small><b>${t.pendingWithdrawals} <span class="mut" style="font-size:13px">(${inr(t.pendingWithdrawalAmount)})</span></b></div>
+    <div class="stat"><small>Entry fees collected (net of refunds)</small><b>${inr(t.entryCollected)}</b></div><div class="stat p"><small>Total prize paid</small><b>${inr(t.prizePaid)}</b></div>
+    <div class="stat ${t.profit >= 0 ? 'g' : 'r'}"><small>Profit (entry fees − prizes)</small><b>${inr(t.profit)}</b></div>
+    <div class="stat"><small>Open matches</small><b>${t.openMatches}</b></div><div class="stat a"><small>Pending deposits</small><b>${t.pendingDeposits}</b></div></div>
+    <div class="grid g4" style="margin-bottom:18px">${per(1)}${per(7)}${per(30)}</div>
+    <div class="card"><div class="row"><h3 style="margin:0;flex:1">Activity</h3><div class="tabs" id="rg" style="margin:0"><button data-r="7">7 days</button><button data-r="14">14 days</button><button data-r="30">30 days</button></div></div>
+    <div class="lg-d"><span><i style="background:#2563eb"></i>Deposits</span><span><i style="background:#16a34a"></i>Entry fees</span><span><i style="background:#7c3aed"></i>Prizes</span></div><div id="ch"></div></div>`;
+  $('#rg').onclick = (e) => { const b = e.target.closest('button'); if (b) { range = Number(b.dataset.r); draw(); } };
+  draw();
+};
+
+/* ================= GAMES ================= */
+PAGES.games = async (el) => {
+  const g = (await api('/admin/games')).data.games;
+  el.innerHTML = `<div class="row"><span class="mut">${g.length} game(s)</span><span class="sp"></span><button class="btn" id="add">+ Add Game</button></div>` +
+    tbl(['Icon', 'Name', 'Order', 'Matches', 'Status', 'Actions'], g.map((x) => `<tr><td><img class="thumb" src="${esc(x.icon)}" alt=""></td><td><b>${esc(x.name)}</b></td><td>${x.sortOrder}</td><td>${x.matches}</td><td>${bdx(x.active ? 'active' : 'cancelled', x.active ? 'active' : 'disabled')}</td><td><button class="btn sm o" data-e="${x.id}">Edit</button> <button class="btn sm ${x.active ? 'a' : 'g'}" data-t="${x.id}">${x.active ? 'Disable' : 'Enable'}</button> <button class="btn sm r" data-d="${x.id}">Delete</button></td></tr>`), 'No games yet. Add your first game.');
+  const form = (x) => {
+    const m = modal(x ? 'Edit Game' : 'Add Game', `<div class="fld"><label>Game name</label><input id="g-n" maxlength="40" value="${esc(x ? x.name : '')}"></div>${imgField('g-i', 'Icon (auto-resized)', x ? x.icon : '', 320, true, 280)}<div class="fld"><label>Sort order (lower = first)</label><input id="g-o" type="number" min="0" value="${x ? x.sortOrder : 0}"></div><label class="sw"><input type="checkbox" id="g-a" ${!x || x.active ? 'checked' : ''}> Active (visible to users)</label><br><button class="btn" id="g-s">Save</button>`);
+    $('#g-s', m.el).onclick = (e) => act(e.currentTarget, async () => {
+      const body = { name: v('g-n'), sortOrder: Number(v('g-o')) || 0, active: chk('g-a'), icon: IMG['g-i'] || null };
+      if (!x && !body.icon) throw new Error('Upload a game icon');
+      ok((await api(x ? '/admin/games/' + x.id : '/admin/games', { method: x ? 'PUT' : 'POST', body })).message); m.close(); route();
+    });
+  };
+  $('#add').onclick = () => form(null);
+  el.onclick = async (e) => {
+    const b = e.target.closest('button'); if (!b) return; const id = b.dataset.e || b.dataset.t || b.dataset.d; const x = g.find((q) => String(q.id) === id);
+    if (b.dataset.e) form(x);
+    if (b.dataset.t) act(b, async () => { ok((await api('/admin/games/' + id, { method: 'PUT', body: { name: x.name, sortOrder: x.sortOrder, active: !x.active } })).message); route(); });
+    if (b.dataset.d && confirm('Delete this game?')) act(b, async () => { ok((await api('/admin/games/' + id, { method: 'DELETE' })).message); route(); });
+  };
+};
+
+/* ================= MATCHES ================= */
+const MF = { game: '', status: '', q: '' };
+PAGES.matches = async (el) => {
+  const games = (await api('/admin/games')).data.games;
+  const load = async () => {
+    const p = new URLSearchParams(); if (MF.game) p.set('gameId', MF.game); if (MF.status) p.set('status', MF.status); if (MF.q) p.set('q', MF.q);
+    const ms = (await api('/admin/matches?' + p)).data.matches; $('#ml').innerHTML = tbl(['ID', 'Match', 'Date & time (IST)', 'Entry', 'Prizes', 'Players', 'Status', 'Room', 'Actions'], ms.map((m) => {
+      const open = m.status === 'upcoming' || m.status === 'ongoing';
+      return `<tr><td>#${m.id}</td><td><b>${esc(m.title)}</b><br><span class="mut">${esc(m.gameName)} • ${esc(m.type)} • ${esc(m.version)}${m.map ? ' • ' + esc(m.map) : ''}</span></td><td>${fmt(m.startAt)}</td><td>${inr(m.entryFee)}</td><td>Pool ${inr(m.prizePool)}<br><span class="mut">Win ${inr(m.winPrize)} • Kill ${inr(m.perKill)}</span></td><td>${m.joined}/${m.maxPlayers}</td><td>${bd(m.status)}</td><td>${m.roomId ? (m.roomReleased ? bdx('success', 'released') : bdx('pending', 'hidden')) : '<span class="mut">—</span>'}</td>
+      <td style="white-space:nowrap">${open ? `<button class="btn sm o" data-a="edit" data-id="${m.id}">Edit</button> <button class="btn sm o" data-a="room" data-id="${m.id}">Room</button> ` : ''}<button class="btn sm o" data-a="players" data-id="${m.id}">Players</button> ${open ? `<button class="btn sm g" data-a="result" data-id="${m.id}">Result</button> <button class="btn sm a" data-a="cancel" data-id="${m.id}">Cancel</button> ` : m.status === 'completed' ? `<button class="btn sm g" data-a="result" data-id="${m.id}">View result</button> ` : ''}<button class="btn sm o" data-a="dup" data-id="${m.id}">Duplicate</button> <button class="btn sm r" data-a="del" data-id="${m.id}">Delete</button></td></tr>`;
+    }), 'No matches found'); window._ms = ms;
+  };
+  el.innerHTML = `<div class="row"><select class="in" id="f-g"><option value="">All games</option>${games.map((g) => `<option value="${g.id}" ${String(g.id) === MF.game ? 'selected' : ''}>${esc(g.name)}</option>`).join('')}</select>
+    <select class="in" id="f-s">${['', 'upcoming', 'ongoing', 'completed', 'cancelled'].map((s) => `<option value="${s}" ${s === MF.status ? 'selected' : ''}>${s ? s[0].toUpperCase() + s.slice(1) : 'All status'}</option>`).join('')}</select>
+    <input class="in" id="f-q" placeholder="Search title / ID" value="${esc(MF.q)}"><span class="sp"></span><button class="btn" id="add" ${games.length ? '' : 'disabled title="Add a game first"'}>+ Add Match</button></div><div id="ml">${sk(2)}</div>`;
+  $('#f-g').onchange = (e) => { MF.game = e.target.value; load().catch(fail); }; $('#f-s').onchange = (e) => { MF.status = e.target.value; load().catch(fail); };
+  let tm; $('#f-q').oninput = (e) => { MF.q = e.target.value.trim(); clearTimeout(tm); tm = setTimeout(() => load().catch(fail), 350); };
+  $('#add').onclick = () => matchForm(null, games);
+  el.onclick = async (e) => {
+    const b = e.target.closest('button[data-a]'); if (!b) return; const id = Number(b.dataset.id); const m = window._ms.find((x) => x.id === id); const a = b.dataset.a;
+    if (a === 'edit') matchForm(m, games); if (a === 'room') roomForm(m); if (a === 'players') playersModal(id); if (a === 'result') resultModal(id);
+    if (a === 'dup') act(b, async () => { ok((await api(`/admin/matches/${id}/duplicate`, { method: 'POST' })).message); load(); });
+    if (a === 'del' && confirm(`Delete match #${id}? Joined players are refunded if the match is still open.`)) act(b, async () => { ok((await api('/admin/matches/' + id, { method: 'DELETE' })).message); load(); });
+    if (a === 'cancel') { const r = await ask('Cancel match #' + id, 'Reason (shown to players). All entry fees will be refunded.', 'e.g. Not enough players'); if (r !== null) act(b, async () => { ok((await api(`/admin/matches/${id}/cancel`, { method: 'POST', body: { reason: r } })).message); load(); }); }
+  };
+  await load();
+};
+function matchForm(m, games) {
+  const t = m ? istInput(m.startAt) : { d: '', t: '' };
+  const locked = m && m.joined > 0;
+  const mo = m ? '' : '';
+  const md = modal(m ? 'Edit Match #' + m.id : 'Add Match', `<div class="cols"><div class="fld"><label>Game</label><select id="m-g">${games.map((g) => `<option value="${g.id}" ${m && m.gameId === g.id ? 'selected' : (!m && String(g.id) === MF.game ? 'selected' : '')}>${esc(g.name)}</option>`).join('')}</select></div>
+    <div class="fld"><label>Match title</label><input id="m-t" maxlength="80" value="${esc(m ? m.title : '')}" placeholder="e.g. FULL MAP SOLO"></div></div>${imgField('m-b', 'Banner (optional, auto-resized)', m ? m.banner : '', 900, false, 280)}
+    <div class="cols"><div class="fld"><label>Type</label><select id="m-ty">${['Solo', 'Duo', 'Squad'].map((x) => `<option ${m && m.type === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+    <div class="fld"><label>Version</label><select id="m-v">${['TPP', 'FPP'].map((x) => `<option ${m && m.version === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+    <div class="fld"><label>Map</label><input id="m-m" maxlength="40" value="${esc(m ? m.map : '')}" placeholder="Bermuda"></div>
+    <div class="fld"><label>Entry fee (₹)</label><input id="m-e" type="number" min="0" step="0.01" value="${m ? m.entryFee : 0}" ${locked ? 'disabled title="Locked – players joined"' : ''}></div>
+    <div class="fld"><label>Prize pool (₹, display)</label><input id="m-p" type="number" min="0" step="0.01" value="${m ? m.prizePool : 0}"></div>
+    <div class="fld"><label>Win prize (₹, split among winners)</label><input id="m-w" type="number" min="0" step="0.01" value="${m ? m.winPrize : 0}"></div>
+    <div class="fld"><label>Per kill (₹)</label><input id="m-k" type="number" min="0" step="0.01" value="${m ? m.perKill : 0}"></div>
+    <div class="fld"><label>Max players</label><input id="m-x" type="number" min="2" max="200" value="${m ? m.maxPlayers : 48}"></div>
+    <div class="fld"><label>Date (IST)</label><input id="m-d" type="date" value="${t.d}"></div><div class="fld"><label>Time (IST)</label><input id="m-h" type="time" value="${t.t}"></div>
+    ${m ? `<div class="fld"><label>Status</label><select id="m-s"><option value="upcoming" ${m.status === 'upcoming' ? 'selected' : ''}>Upcoming</option><option value="ongoing" ${m.status === 'ongoing' ? 'selected' : ''}>Ongoing</option></select><small>Use Result to complete, Cancel to cancel (auto-refund).</small></div>` : ''}</div>
+    <button class="btn" id="m-save">${m ? 'Save changes' : 'Create match'}</button>`);
+  $('#m-save', md.el).onclick = (e) => act(e.currentTarget, async () => {
+    const iso = toISO(v('m-d'), v('m-h')); if (!iso) throw new Error('Select date and time');
+    const body = { gameId: Number(v('m-g')), title: v('m-t'), type: v('m-ty'), version: v('m-v'), map: v('m-m'), entryFee: v('m-e') === '' ? 0 : Number(v('m-e')), prizePool: Number(v('m-p')) || 0, winPrize: Number(v('m-w')) || 0, perKill: Number(v('m-k')) || 0, maxPlayers: Number(v('m-x')), startAt: iso, banner: IMG['m-b'] || null };
+    if (locked) body.entryFee = m.entryFee;
+    const r = await api(m ? '/admin/matches/' + m.id : '/admin/matches', { method: m ? 'PUT' : 'POST', body });
+    if (m && v('m-s') && v('m-s') !== m.status) await api(`/admin/matches/${m.id}/status`, { method: 'POST', body: { status: v('m-s') } });
+    ok(r.message); md.close(); route();
+  });
+  void mo;
+}
+function roomForm(m) {
+  const md = modal('Room details – #' + m.id, `<div class="fld"><label>Room ID</label><input id="r-i" maxlength="40" value="${esc(m.roomId)}"></div><div class="fld"><label>Room password</label><input id="r-p" maxlength="40" value="${esc(m.roomPassword)}"></div>
+    <label class="sw"><input type="checkbox" id="r-r" ${m.roomReleased ? 'checked' : ''}> Release to joined players</label><p class="mut">When released, only players who joined this match can see the Room ID and password. Players are notified.</p><button class="btn" id="r-s">Save</button>`);
+  $('#r-s', md.el).onclick = (e) => act(e.currentTarget, async () => { ok((await api(`/admin/matches/${m.id}/room`, { method: 'POST', body: { roomId: v('r-i'), roomPassword: v('r-p'), released: chk('r-r') } })).message); md.close(); route(); });
+}
+async function playersModal(id) {
+  const md = modal('Joined players – #' + id, sk(2), true);
+  try {
+    const d = (await api(`/admin/matches/${id}/players`)).data; const open = d.match.status === 'upcoming' || d.match.status === 'ongoing';
+    md.el.innerHTML = `<p class="mut">${esc(d.match.title)} • ${d.players.length}/${d.match.maxPlayers} joined</p>` + tbl(['#', 'In-game UID', 'In-game name', 'User', 'Joined (IST)', ...(open ? [''] : ['Kills', 'Prize'])], d.players.map((p, i) => `<tr><td>${i + 1}</td><td class="mono">${esc(p.uid)}</td><td><b>${esc(p.ign)}</b></td><td>${esc(p.userName)}<br><span class="mut">${esc(p.mobile)}</span></td><td>${fmt(p.joinedAt)}</td>${open ? `<td><button class="btn sm r" data-rm="${p.id}">Remove & refund</button></td>` : `<td>${p.kills}</td><td>${p.prize ? inr(p.prize) : '—'}</td>`}</tr>`), 'No players have joined yet');
+    md.el.onclick = async (e) => { const b = e.target.closest('[data-rm]'); if (!b) return; const r = await ask('Remove player', 'Reason (optional)', ''); if (r === null) return; act(b, async () => { ok((await api(`/admin/matches/${id}/players/${b.dataset.rm}`, { method: 'DELETE', body: { reason: r } })).message); md.close(); playersModal(id); }); };
+  } catch (e) { md.close(); fail(e); }
+}
+async function resultModal(id) {
+  const md = modal('Match result – #' + id, sk(2), true);
+  try {
+    const d = (await api(`/admin/matches/${id}/players`)).data; const m = d.match; const P = d.players;
+    if (m.status === 'completed') { md.el.innerHTML = `<p class="mut">${esc(m.title)} • Result submitted</p>` + tbl(['UID', 'Name', 'Kills', 'Winner', 'Prize'], P.map((p) => `<tr><td class="mono">${esc(p.uid)}</td><td>${esc(p.ign)}</td><td>${p.kills}</td><td>${p.winner ? '🏆' : ''}</td><td>${p.prize ? '<b class="pos">' + inr(p.prize) + '</b>' : '—'}</td></tr>`)); return; }
+    if (m.status === 'cancelled') { md.el.innerHTML = emptyBox('Match was cancelled'); return; }
+    if (!P.length) { md.el.innerHTML = emptyBox('No players joined', 'Nothing to submit.'); return; }
+    md.el.innerHTML = `<div class="pre" style="margin-bottom:12px"><div><span>Win prize (split among ticked winners)</span><b>${inr(m.winPrize)}</b></div><div><span>Per kill</span><b>${inr(m.perKill)}</b></div></div>
+    ${tbl(['Winner', 'UID', 'In-game name', 'Kills'], P.map((p) => `<tr><td><input type="checkbox" class="chk" data-w="${p.id}"></td><td class="mono">${esc(p.uid)}</td><td><b>${esc(p.ign)}</b></td><td><input type="number" class="in" style="width:80px;min-width:0" min="0" max="200" value="0" data-k="${p.id}" ${m.perKill > 0 ? '' : 'disabled'}></td></tr>`))}
+    <div class="pre" id="pv" style="margin:14px 0"></div><button class="btn g" id="rs-go">Submit result &amp; credit winners</button>`;
+    const calc = () => {
+      const w = $$('[data-w]:checked', md.el).length; const kills = $$('[data-k]', md.el).reduce((a, i) => a + (Math.max(0, parseInt(i.value, 10) || 0)), 0);
+      const share = w ? Math.floor(m.winPrize * 100 / w) / 100 : 0; const total = Math.round(share * w * 100 + kills * m.perKill * 100) / 100;
+      $('#pv', md.el).innerHTML = `<div><span>Winners ticked</span><b>${w}</b></div><div><span>Prize per winner (${inr(m.winPrize)} ÷ ${w || 0}, rounded down)</span><b>${inr(share)}</b></div><div><span>Total kills × ${inr(m.perKill)}</span><b>${inr(Math.round(kills * m.perKill * 100) / 100)}</b></div><div><span><b>Total payout</b></span><b class="pos">${inr(total)}</b></div>${m.winPrize > 0 && w === 0 ? '<div class="neg">Tick at least one winner to pay the win prize.</div>' : ''}`;
+    };
+    md.el.oninput = calc; md.el.onchange = calc; calc();
+    $('#rs-go', md.el).onclick = (e) => {
+      const w = $$('[data-w]:checked', md.el).length; if (m.winPrize > 0 && !w) return toast('Tick at least one winner', 'bad');
+      if (!confirm('Submit result? Winners are credited immediately and this cannot be undone.')) return;
+      const entries = P.map((p) => ({ playerId: p.id, winner: $(`[data-w="${p.id}"]`, md.el).checked, kills: Math.max(0, parseInt($(`[data-k="${p.id}"]`, md.el).value, 10) || 0) }));
+      act(e.currentTarget, async () => { ok((await api(`/admin/matches/${id}/result`, { method: 'POST', body: { entries } })).message); md.close(); route(); });
+    };
+  } catch (e) { md.close(); fail(e); }
+}
+
+/* ================= USERS ================= */
+const UF = { q: '', filter: 'all', page: 0 };
+PAGES.users = async (el) => {
+  el.innerHTML = `<div class="row"><input class="in" id="u-q" placeholder="Search name / mobile / code / ID" value="${esc(UF.q)}" style="min-width:240px"><select class="in" id="u-f">${[['all', 'All users'], ['active', 'Active'], ['banned', 'Blocked']].map((x) => `<option value="${x[0]}" ${UF.filter === x[0] ? 'selected' : ''}>${x[1]}</option>`).join('')}</select><span class="sp"></span><span class="mut" id="u-c"></span></div><div id="ul">${sk(2)}</div>`;
+  const load = async () => {
+    const d = (await api(`/admin/users?q=${encodeURIComponent(UF.q)}&filter=${UF.filter}&page=${UF.page}`)).data; $('#u-c').textContent = d.total + ' total users';
+    $('#ul').innerHTML = tbl(['ID', 'User', 'Deposit', 'Winning', 'Matches', 'Joined', 'Last active', 'Status', ''], d.users.map((u) => `<tr><td>#${u.id}</td><td><b>${esc(u.name)}</b><br><span class="mut">${esc(u.mobile)}</span></td><td>${inr(u.deposit)}</td><td>${inr(u.winning)}</td><td>${u.matches}</td><td>${fmt(u.createdAt)}</td><td>${fmt(u.lastActiveAt)}</td><td>${bd(u.banned ? 'banned' : 'active')}</td><td><button class="btn sm" data-u="${u.id}">Open</button></td></tr>`), 'No users found')
+      + `<div class="row" style="margin-top:12px"><button class="btn sm o" id="pv" ${UF.page ? '' : 'disabled'}>← Prev</button><button class="btn sm o" id="nx" ${d.more ? '' : 'disabled'}>Next →</button></div>`;
+    $('#pv').onclick = () => { UF.page--; load(); }; $('#nx').onclick = () => { UF.page++; load(); };
+  };
+  let tm; $('#u-q').oninput = (e) => { UF.q = e.target.value.trim(); UF.page = 0; clearTimeout(tm); tm = setTimeout(() => load().catch(fail), 350); };
+  $('#u-f').onchange = (e) => { UF.filter = e.target.value; UF.page = 0; load().catch(fail); };
+  el.addEventListener('click', (e) => { const b = e.target.closest('[data-u]'); if (b) userModal(b.dataset.u); });
+  await load();
+};
+async function userModal(id) {
+  const md = modal('User #' + id, sk(2), true);
+  try {
+    const d = (await api('/admin/users/' + id)).data; const u = d.user; let tab = 'ledger';
+    const tabs = { ledger: () => tbl(['Date', 'Type', 'Amount', 'Dep Δ', 'Win Δ', 'Balance after', 'Match', 'Note'], d.ledger.map((t) => `<tr><td>${fmt(t.at)}</td><td>${esc(t.type)}</td><td>${inr(t.amount)}</td><td class="${t.dep > 0 ? 'pos' : t.dep < 0 ? 'neg' : ''}">${t.dep}</td><td class="${t.win > 0 ? 'pos' : t.win < 0 ? 'neg' : ''}">${t.win}</td><td>${inr(t.depAfter)} / ${inr(t.winAfter)}</td><td>${t.matchId ? '#' + t.matchId : ''}</td><td>${esc(t.note)}</td></tr>`), 'No transactions'),
+      matches: () => tbl(['Match', 'Status', 'UID', 'IGN', 'Kills', 'Prize'], d.matches.map((m) => `<tr><td>#${m.id} ${esc(m.title)}<br><span class="mut">${fmt(m.start_at)}</span></td><td>${bd(m.status)}</td><td class="mono">${esc(m.uid)}</td><td>${esc(m.ign)}</td><td>${m.kills}</td><td>${m.prize ? inr(m.prize) : '—'}</td></tr>`), 'No matches joined'),
+      referrals: () => (d.referredBy ? `<p>Referred by <b>${esc(d.referredBy.name)}</b> (${esc(d.referredBy.mobile)})</p>` : '') + tbl(['Referred user', 'Mobile', 'Earned', 'Date'], d.referrals.map((r) => `<tr><td>${esc(r.name)}</td><td>${esc(r.mobile)}</td><td>${inr(r.earned)}</td><td>${fmt(r.created_at)}</td></tr>`), 'No referrals'),
+      deposits: () => tbl(['Order', 'Amount', 'Status', 'Date'], d.deposits.map((x) => `<tr><td class="mono">${esc(x.orderId)}</td><td>${inr(x.amount)}</td><td>${bd(x.status)}</td><td>${fmt(x.at)}</td></tr>`), 'No deposits'),
+      withdrawals: () => tbl(['ID', 'Amount', 'Payable', 'Status', 'Date'], d.withdrawals.map((x) => `<tr><td>#${x.id}</td><td>${inr(x.amount)}</td><td>${inr(x.final)}</td><td>${bd(x.status)}</td><td>${fmt(x.at)}</td></tr>`), 'No withdrawals') };
+    md.el.innerHTML = `<div class="grid g4" style="margin-bottom:14px"><div class="stat"><small>Name / Mobile</small><b style="font-size:15px">${esc(u.name)}<br>${esc(u.mobile)}</b></div><div class="stat g"><small>Deposit balance</small><b>${inr(u.deposit)}</b></div><div class="stat p"><small>Winning balance</small><b>${inr(u.winning)}</b></div><div class="stat"><small>Status</small><b style="font-size:15px">${bd(u.banned ? 'banned' : 'active')}</b><small>Code ${esc(u.code)} • Joined ${fmt(u.createdAt)}</small></div></div>
+    <div class="row"><button class="btn sm ${u.banned ? 'g' : 'a'}" id="ub">${u.banned ? 'Unblock user' : 'Block user'}</button><button class="btn sm o" id="up">Reset password</button><button class="btn sm r" id="ud">Delete user</button></div>
+    <div class="card" style="background:#f8fafc;box-shadow:none"><h3>Adjust balance</h3><div class="row"><select class="in" id="b-a"><option value="add">Add</option><option value="deduct">Deduct</option></select><select class="in" id="b-b"><option value="deposit">Deposit balance</option><option value="winning">Winning balance</option></select><input class="in" id="b-m" type="number" min="0" step="0.01" placeholder="Amount" style="width:110px"><input class="in" id="b-r" placeholder="Reason (required, logged)" style="flex:1"><button class="btn sm" id="b-go">Apply</button></div></div>
+    <div class="tabs" id="ut">${Object.keys(tabs).map((k) => `<button data-t="${k}" class="${k === tab ? 'on' : ''}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div><div id="ub-c">${tabs[tab]()}</div>`;
+    $('#ut', md.el).onclick = (e) => { const b = e.target.closest('button'); if (!b) return; tab = b.dataset.t; $$('#ut button', md.el).forEach((x) => x.classList.toggle('on', x === b)); $('#ub-c', md.el).innerHTML = tabs[tab](); };
+    $('#ub', md.el).onclick = async (e) => { let reason = ''; if (!u.banned) { const r = await ask('Block user', 'Reason (shown to user)', ''); if (r === null) return; reason = r; } act(e.currentTarget, async () => { ok((await api(`/admin/users/${id}/ban`, { method: 'POST', body: { banned: !u.banned, reason } })).message); md.close(); userModal(id); }); };
+    $('#up', md.el).onclick = async (e) => { const p = await ask('Reset password', 'New password (min 6 chars)', ''); if (!p) return; act(e.currentTarget, async () => { ok((await api(`/admin/users/${id}/reset-password`, { method: 'POST', body: { password: p } })).message); }); };
+    $('#ud', md.el).onclick = (e) => { if (confirm('Permanently delete this user?')) act(e.currentTarget, async () => { ok((await api('/admin/users/' + id, { method: 'DELETE' })).message); md.close(); route(); }); };
+    $('#b-go', md.el).onclick = (e) => act(e.currentTarget, async () => { ok((await api(`/admin/users/${id}/balance`, { method: 'POST', body: { action: v('b-a'), bucket: v('b-b'), amount: Number(v('b-m')), reason: v('b-r') } })).message); md.close(); userModal(id); });
+  } catch (e) { md.close(); fail(e); }
+}
+
+/* ================= DEPOSITS ================= */
+const DF = { status: 'all', q: '', page: 0 };
+PAGES.deposits = async (el) => {
+  el.innerHTML = `<div class="row"><select class="in" id="d-s">${['all', 'pending', 'success', 'failed', 'expired', 'rejected'].map((s) => `<option ${DF.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select><input class="in" id="d-q" placeholder="Order ID / mobile / UTR" value="${esc(DF.q)}" style="min-width:230px"></div><div id="dl">${sk(2)}</div>`;
+  const load = async () => {
+    const d = (await api(`/admin/deposits?status=${DF.status}&q=${encodeURIComponent(DF.q)}&page=${DF.page}`)).data;
+    $('#dl').innerHTML = tbl(['Order ID', 'User', 'Amount', 'Status', 'UTR', 'Date', 'Note', 'Actions'], d.deposits.map((x) => `<tr><td class="mono">${esc(x.orderId)}</td><td>${esc(x.name)}<br><span class="mut">${esc(x.mobile)}</span></td><td><b>${inr(x.amount)}</b></td><td>${bd(x.status)}<br><span class="mut">${esc(x.utrStatus)}</span></td><td class="mono">${esc(x.utr) || '—'}</td><td>${fmt(x.at)}</td><td class="mut">${esc(x.note)}</td>
+      <td style="white-space:nowrap">${x.status === 'pending' ? `<button class="btn sm o" data-a="refresh" data-id="${x.id}">Check status</button> ` : ''}${!x.credited && x.status !== 'success' ? `<button class="btn sm g" data-a="approve" data-id="${x.id}">Approve</button> ` : ''}${['pending', 'expired', 'failed'].includes(x.status) && !x.credited ? `<button class="btn sm r" data-a="reject" data-id="${x.id}">Reject</button>` : ''}</td></tr>`), 'No deposits found')
+      + `<div class="row" style="margin-top:12px"><button class="btn sm o" id="pv" ${DF.page ? '' : 'disabled'}>← Prev</button><button class="btn sm o" id="nx" ${d.more ? '' : 'disabled'}>Next →</button></div>`;
+    $('#pv').onclick = () => { DF.page--; load(); }; $('#nx').onclick = () => { DF.page++; load(); };
+  };
+  $('#d-s').onchange = (e) => { DF.status = e.target.value; DF.page = 0; load().catch(fail); };
+  let tm; $('#d-q').oninput = (e) => { DF.q = e.target.value.trim(); DF.page = 0; clearTimeout(tm); tm = setTimeout(() => load().catch(fail), 350); };
+  el.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-a]'); if (!b) return; const id = b.dataset.id, a = b.dataset.a;
+    if (a === 'refresh') act(b, async () => { ok((await api(`/admin/deposits/${id}/refresh`, { method: 'POST' })).message); load(); });
+    if (a === 'approve' && confirm('Manually approve and credit this deposit to the user wallet?')) act(b, async () => { ok((await api(`/admin/deposits/${id}/approve`, { method: 'POST', body: {} })).message); load(); });
+    if (a === 'reject') { const r = await ask('Reject deposit', 'Reason', ''); if (r !== null) act(b, async () => { ok((await api(`/admin/deposits/${id}/reject`, { method: 'POST', body: { reason: r } })).message); load(); }); }
+  });
+  await load();
+};
+
+/* ================= WITHDRAWALS ================= */
+const WF = { status: 'pending', q: '', page: 0 };
+PAGES.withdrawals = async (el) => {
+  el.innerHTML = `<div class="row"><select class="in" id="w-s">${['all', 'pending', 'approved', 'paid', 'rejected'].map((s) => `<option ${WF.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select><input class="in" id="w-q" placeholder="Mobile / name / UPI / account" value="${esc(WF.q)}" style="min-width:230px"><span class="sp"></span><button class="btn g" id="w-x">⬇ Export CSV</button></div><div id="wl">${sk(2)}</div>`;
+  const load = async () => {
+    const d = (await api(`/admin/withdrawals?status=${WF.status}&q=${encodeURIComponent(WF.q)}&page=${WF.page}`)).data;
+    $('#wl').innerHTML = tbl(['ID', 'User', 'Method / details', 'Amount', 'GST', 'Final payable', 'Status', 'Date', 'Actions'], d.withdrawals.map((w) => `<tr><td>#${w.id}</td><td>${esc(w.name)}<br><span class="mut">${esc(w.userMobile)}</span></td>
+      <td>${w.method === 'upi' ? `<b>UPI</b><br><span class="mono">${esc(w.upi)}</span>` : `<b>BANK</b> ${esc(w.holder)}<br><span class="mono">${esc(w.accountNo)} • ${esc(w.ifsc)}</span><br><span class="mut">${esc(w.mobile)}</span>`}</td><td>${inr(w.amount)}</td><td>${inr(w.gst)} <span class="mut">(${w.gstPercent}%)</span></td><td><b class="pos">${inr(w.finalAmount)}</b></td><td>${bd(w.status)}${w.payoutRef ? `<br><span class="mut mono">${esc(w.payoutRef)}</span>` : ''}${w.reason ? `<br><span class="mut">${esc(w.reason)}</span>` : ''}</td><td>${fmt(w.at)}</td>
+      <td style="white-space:nowrap">${w.status === 'pending' ? `<button class="btn sm o" data-a="approve" data-id="${w.id}">Approve</button> ` : ''}${['pending', 'approved'].includes(w.status) ? `<button class="btn sm g" data-a="paid" data-id="${w.id}">Mark paid</button> <button class="btn sm r" data-a="reject" data-id="${w.id}">Reject</button>` : ''}</td></tr>`), 'No withdrawals found')
+      + `<div class="row" style="margin-top:12px"><button class="btn sm o" id="pv" ${WF.page ? '' : 'disabled'}>← Prev</button><button class="btn sm o" id="nx" ${d.more ? '' : 'disabled'}>Next →</button></div>`;
+    $('#pv').onclick = () => { WF.page--; load(); }; $('#nx').onclick = () => { WF.page++; load(); };
+  };
+  $('#w-s').onchange = (e) => { WF.status = e.target.value; WF.page = 0; load().catch(fail); };
+  let tm; $('#w-q').oninput = (e) => { WF.q = e.target.value.trim(); WF.page = 0; clearTimeout(tm); tm = setTimeout(() => load().catch(fail), 350); };
+  $('#w-x').onclick = (e) => act(e.currentTarget, () => download('/admin/withdrawals/export?status=' + WF.status, 'withdrawals.csv'));
+  el.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-a]'); if (!b) return; const id = b.dataset.id, a = b.dataset.a;
+    if (a === 'approve') act(b, async () => { ok((await api(`/admin/withdrawals/${id}/approve`, { method: 'POST', body: {} })).message); load(); });
+    if (a === 'paid') { const r = await ask('Mark as paid', 'Payout reference / UTR', 'e.g. UTR123456'); if (r) act(b, async () => { ok((await api(`/admin/withdrawals/${id}/paid`, { method: 'POST', body: { payoutRef: r } })).message); load(); }); }
+    if (a === 'reject') { const r = await ask('Reject withdrawal', 'Reason (shown to user). Amount is refunded automatically.', ''); if (r) act(b, async () => { ok((await api(`/admin/withdrawals/${id}/reject`, { method: 'POST', body: { reason: r } })).message); load(); }); }
+  });
+  await load();
+};
+
+/* ================= SETTINGS helpers ================= */
+const sf = (S, k, label, o = {}) => `<div class="fld"><label>${label}</label><input id="s-${k}" ${o.type ? `type="${o.type}"` : ''} ${o.step ? `step="${o.step}"` : ''} ${o.pw ? 'autocomplete="new-password"' : ''} value="${o.pw ? '' : esc(S[k])}" placeholder="${esc(o.ph || '')}">${o.hint ? `<small>${o.hint}</small>` : ''}</div>`;
+const secret = (S, k, label) => `<div class="fld"><label>${label}</label><input id="s-${k}" type="password" autocomplete="new-password" placeholder="${S[k + '_set'] ? 'Saved (' + S[k + '_hint'] + ') – leave blank to keep' : 'Not set'}"><small>Stored on the server only. Never sent to browsers.</small></div>`;
+const collect = (keys) => { const o = {}; keys.forEach((k) => { const el = $('#s-' + k); if (el) o[k] = el.type === 'checkbox' ? el.checked : el.value.trim(); }); return o; };
+
+PAGES.settings = async (el) => {
+  const d = (await api('/admin/settings')).data; const S = d.settings;
+  el.innerHTML = `<div class="card"><h3>General</h3><div class="cols">${sf(S, 'app_name', 'App name')}${sf(S, 'app_tagline', 'Tagline')}${sf(S, 'site_url', 'Public site URL', { ph: 'https://yourapp.onrender.com', hint: 'Used for payment redirect/webhook. Leave blank to auto-detect.' })}</div>${imgField('s-logo', 'App logo (shown on login screen; auto-resized)', d.logo, 256, true, 280)}${d.logo ? '<label class="sw"><input type="checkbox" id="s-rmlogo"> Remove current logo</label>' : ''}</div>
+  <div class="card"><h3>OTP API</h3><div class="cols">${sf(S, 'otp_base', 'OTP API base URL', { ph: 'https://otp-lio.onrender.com' })}${secret(S, 'otp_key', 'OTP API key')}</div></div>
+  <div class="card"><h3>Payment API</h3><div class="cols">${sf(S, 'pay_base', 'Payment API base URL', { ph: 'https://v3payamunt.vercel.app/api/v1' })}${sf(S, 'pay_username', 'Payment username')}${secret(S, 'pay_key', 'Payment key')}</div>
+  <div class="pre"><div><span>Webhook URL (give to provider if needed)</span><b class="mono">${esc(d.webhookUrl)}</b></div><div><span>Redirect URL after payment</span><b class="mono">${esc(d.redirectUrl)}</b></div></div></div>
+  <div class="card"><h3>Money rules</h3><div class="cols">${sf(S, 'gst_percent', 'GST % on withdrawals', { type: 'number', step: '0.01' })}${sf(S, 'min_deposit', 'Min deposit (₹)', { type: 'number' })}${sf(S, 'max_deposit', 'Max deposit (₹)', { type: 'number' })}${sf(S, 'min_withdraw', 'Min withdraw (₹)', { type: 'number' })}${sf(S, 'max_withdraw', 'Max withdraw (₹)', { type: 'number' })}</div>
+  <label class="sw"><input type="checkbox" id="s-withdraw_enabled" ${S.withdraw_enabled === '1' ? 'checked' : ''}> Withdrawals enabled</label></div>
+  <div class="card"><h3>Support & developer</h3><div class="cols">${sf(S, 'support_whatsapp', 'WhatsApp link', { ph: 'https://wa.me/91XXXXXXXXXX' })}${sf(S, 'support_telegram', 'Telegram link', { ph: 'https://t.me/username' })}${sf(S, 'support_email', 'Support email')}${sf(S, 'dev_link', 'Developer contact link', { ph: 'https://…' })}</div></div>
+  <div class="card"><h3>Maintenance</h3><label class="sw"><input type="checkbox" id="s-maintenance" ${S.maintenance === '1' ? 'checked' : ''}> Maintenance mode (users see a maintenance screen; admin panel keeps working)</label></div>
+  <button class="btn" id="save" style="padding:12px 28px">Save settings</button>`;
+  $('#save').onclick = (e) => act(e.currentTarget, async () => {
+    const keys = ['app_name', 'app_tagline', 'site_url', 'otp_base', 'otp_key', 'pay_base', 'pay_username', 'pay_key', 'gst_percent', 'min_deposit', 'max_deposit', 'min_withdraw', 'max_withdraw', 'withdraw_enabled', 'support_whatsapp', 'support_telegram', 'support_email', 'dev_link', 'maintenance'];
+    ok((await api('/admin/settings', { method: 'PUT', body: { settings: collect(keys), logo: IMG['s-logo'] || null, removeLogo: chk('s-rmlogo') } })).message); route();
+  });
+};
+
+/* ================= REFERRALS ================= */
+PAGES.referrals = async (el) => {
+  const [sd, rd] = await Promise.all([api('/admin/settings'), api('/admin/referrals')]); const S = sd.data.settings; const r = rd.data;
+  el.innerHTML = `<div class="card"><h3>Referral settings</h3><div class="cols">${sf(S, 'ref_signup_referrer', 'Referrer joining bonus (₹)', { type: 'number', step: '0.01', hint: 'Paid to referrer when friend signs up (or after qualifying deposit if min deposit is set).' })}${sf(S, 'ref_signup_referred', 'Referred user signup bonus (₹)', { type: 'number', step: '0.01' })}${sf(S, 'ref_percent', '% bonus of referred user\'s deposit', { type: 'number', step: '0.01' })}
+  <div class="fld"><label>Deposit bonus applies to</label><select id="s-ref_percent_mode"><option value="first" ${S.ref_percent_mode !== 'every' ? 'selected' : ''}>First deposit only</option><option value="every" ${S.ref_percent_mode === 'every' ? 'selected' : ''}>Every deposit</option></select></div>
+  ${sf(S, 'ref_min_deposit', 'Min deposit to qualify (₹)', { type: 'number', step: '0.01' })}${sf(S, 'ref_max_cap', 'Max cap per deposit bonus (₹, 0 = no cap)', { type: 'number', step: '0.01' })}</div>
+  <p class="mut">Bonuses are credited to the deposit balance. Self-referral and duplicate-device referrals are blocked automatically.</p><button class="btn" id="save">Save referral settings</button></div>
+  <div class="grid g4" style="margin-bottom:18px"><div class="stat"><small>Total referrals</small><b>${r.totals.referrals}</b></div><div class="stat g"><small>Referrals with bonus paid</small><b>${r.totals.bonusPaid}</b></div><div class="stat p"><small>Total bonus paid</small><b>${inr(r.totals.earned)}</b></div></div>
+  <div class="card"><h3>Top referrers</h3>${tbl(['User', 'Mobile', 'Referred', 'Earned'], r.top.map((t) => `<tr><td>${esc(t.name)}</td><td>${esc(t.mobile)}</td><td>${t.referred}</td><td>${inr(t.earned)}</td></tr>`), 'No referrals yet')}</div>
+  <div class="card"><h3>Recent referrals</h3>${tbl(['Referrer', 'Referred user', 'Bonus earned', 'Date'], r.recent.map((t) => `<tr><td>${esc(t.referrer)}<br><span class="mut">${esc(t.referrer_mobile)}</span></td><td>${esc(t.referred)}<br><span class="mut">${esc(t.referred_mobile)}</span></td><td>${t.earned > 0 ? '<b class="pos">' + inr(t.earned) + '</b>' : bd('pending')}</td><td>${fmt(t.created_at)}</td></tr>`), 'No referrals yet')}</div>`;
+  $('#save').onclick = (e) => act(e.currentTarget, async () => { ok((await api('/admin/settings', { method: 'PUT', body: { settings: collect(['ref_signup_referrer', 'ref_signup_referred', 'ref_percent', 'ref_percent_mode', 'ref_min_deposit', 'ref_max_cap']) } })).message); });
+};
+
+/* ================= CONTENT (banners / promotions / announcements) ================= */
+let CT = 'banners';
+PAGES.content = async (el) => {
+  el.innerHTML = `<div class="tabs" id="ct">${[['banners', 'Banners'], ['announcements', 'Announcements'], ['promotions', 'Promotions']].map((t) => `<button data-t="${t[0]}" class="${CT === t[0] ? 'on' : ''}">${t[1]}</button>`).join('')}</div><div id="cc">${sk(2)}</div>`;
+  $('#ct').onclick = (e) => { const b = e.target.closest('button'); if (b) { CT = b.dataset.t; route(); } };
+  const c = $('#cc');
+  if (CT === 'banners') {
+    const b = (await api('/admin/banners')).data.banners;
+    c.innerHTML = `<div class="row"><span class="mut">Shown in the home carousel and the Promotion page</span><span class="sp"></span><button class="btn" id="add">+ Add Banner</button></div>` + tbl(['Image', 'Link', 'Order', 'Status', ''], b.map((x) => `<tr><td><img src="${esc(x.image)}" style="width:150px;height:64px;border-radius:10px;object-fit:cover" alt=""></td><td>${esc(x.link) || '—'}</td><td>${x.sortOrder}</td><td>${bdx(x.active ? 'active' : 'cancelled', x.active ? 'active' : 'hidden')}</td><td><button class="btn sm o" data-e="${x.id}">Edit</button> <button class="btn sm r" data-d="${x.id}">Delete</button></td></tr>`), 'No banners yet');
+    const form = (x) => { const m = modal(x ? 'Edit banner' : 'Add banner', `${imgField('b-i', 'Banner image (16:7 recommended; auto-resized)', x ? x.image : '', 1000, false, 280)}<div class="fld"><label>Link (optional)</label><input id="b-l" value="${esc(x ? x.link : '')}" placeholder="https://…"></div><div class="fld"><label>Order</label><input id="b-o" type="number" min="0" value="${x ? x.sortOrder : 0}"></div><label class="sw"><input type="checkbox" id="b-a" ${!x || x.active ? 'checked' : ''}> Visible</label><br><button class="btn" id="b-s">Save</button>`);
+      $('#b-s', m.el).onclick = (e) => act(e.currentTarget, async () => { if (!x && !IMG['b-i']) throw new Error('Upload an image'); ok((await api(x ? '/admin/banners/' + x.id : '/admin/banners', { method: x ? 'PUT' : 'POST', body: { image: IMG['b-i'] || null, link: v('b-l'), sortOrder: Number(v('b-o')) || 0, active: chk('b-a') } })).message); m.close(); route(); }); };
+    $('#add').onclick = () => form(null);
+    c.onclick = (e) => { const t = e.target.closest('button'); if (!t) return; if (t.dataset.e) form(b.find((q) => String(q.id) === t.dataset.e)); if (t.dataset.d && confirm('Delete banner?')) act(t, async () => { ok((await api('/admin/banners/' + t.dataset.d, { method: 'DELETE' })).message); route(); }); };
+  } else if (CT === 'announcements') {
+    const a = (await api('/admin/announcements')).data.announcements;
+    c.innerHTML = `<div class="card"><h3>New announcement</h3><div class="fld"><label>Title</label><input id="a-t" maxlength="100"></div><div class="fld"><label>Message</label><textarea id="a-b" rows="3" maxlength="1000"></textarea></div><label class="sw"><input type="checkbox" id="a-n" checked> Also push to every user's notifications</label><br><button class="btn" id="a-s">Publish</button></div>` + tbl(['Date', 'Title', 'Message', 'Status', ''], a.map((x) => `<tr><td>${fmt(x.created_at)}</td><td><b>${esc(x.title)}</b></td><td>${esc(x.body)}</td><td>${bdx(x.active ? 'active' : 'cancelled', x.active ? 'active' : 'hidden')}</td><td><button class="btn sm o" data-h="${x.id}">${x.active ? 'Hide' : 'Show'}</button> <button class="btn sm r" data-d="${x.id}">Delete</button></td></tr>`), 'No announcements yet');
+    $('#a-s').onclick = (e) => act(e.currentTarget, async () => { ok((await api('/admin/announcements', { method: 'POST', body: { title: v('a-t'), body: v('a-b'), notifyAll: chk('a-n') } })).message); route(); });
+    c.onclick = (e) => { const t = e.target.closest('button[data-h],button[data-d]'); if (!t) return; if (t.dataset.d && confirm('Delete announcement?')) act(t, async () => { ok((await api('/admin/announcements/' + t.dataset.d, { method: 'DELETE' })).message); route(); }); if (t.dataset.h) { const x = a.find((q) => String(q.id) === t.dataset.h); act(t, async () => { ok((await api('/admin/announcements/' + x.id, { method: 'PUT', body: { title: x.title, body: x.body, active: !x.active } })).message); route(); }); } };
+  } else {
+    const p = (await api('/admin/promotions')).data.promotions;
+    c.innerHTML = `<div class="row"><span class="sp"></span><button class="btn" id="add">+ Add Promotion</button></div>` + tbl(['Image', 'Title', 'Message', 'Order', 'Status', ''], p.map((x) => `<tr><td>${x.image ? `<img class="thumb" src="${esc(x.image)}" alt="">` : '—'}</td><td><b>${esc(x.title)}</b><br><span class="mut">${esc(x.link)}</span></td><td>${esc(x.body)}</td><td>${x.sortOrder}</td><td>${bdx(x.active ? 'active' : 'cancelled', x.active ? 'active' : 'hidden')}</td><td><button class="btn sm o" data-e="${x.id}">Edit</button> <button class="btn sm r" data-d="${x.id}">Delete</button></td></tr>`), 'No promotions yet');
+    const form = (x) => { const m = modal(x ? 'Edit promotion' : 'Add promotion', `<div class="fld"><label>Title</label><input id="p-t" maxlength="80" value="${esc(x ? x.title : '')}"></div><div class="fld"><label>Message</label><textarea id="p-b" rows="3" maxlength="600">${esc(x ? x.body : '')}</textarea></div>${imgField('p-i', 'Image (optional)', x ? x.image : '', 900, false, 280)}<div class="fld"><label>Link (optional)</label><input id="p-l" value="${esc(x ? x.link : '')}"></div><div class="fld"><label>Order</label><input id="p-o" type="number" min="0" value="${x ? x.sortOrder : 0}"></div><label class="sw"><input type="checkbox" id="p-a" ${!x || x.active ? 'checked' : ''}> Visible</label><br><button class="btn" id="p-s">Save</button>`);
+      $('#p-s', m.el).onclick = (e) => act(e.currentTarget, async () => { ok((await api(x ? '/admin/promotions/' + x.id : '/admin/promotions', { method: x ? 'PUT' : 'POST', body: { title: v('p-t'), body: v('p-b'), image: IMG['p-i'] || null, link: v('p-l'), sortOrder: Number(v('p-o')) || 0, active: chk('p-a') } })).message); m.close(); route(); }); };
+    $('#add').onclick = () => form(null);
+    c.onclick = (e) => { const t = e.target.closest('button'); if (!t) return; if (t.dataset.e) form(p.find((q) => String(q.id) === t.dataset.e)); if (t.dataset.d && confirm('Delete promotion?')) act(t, async () => { ok((await api('/admin/promotions/' + t.dataset.d, { method: 'DELETE' })).message); route(); }); };
+  }
+};
+
+/* ================= LEADERBOARD ================= */
+let LP = 'daily';
+PAGES.leaderboard = async (el) => {
+  const d = (await api('/admin/leaderboard?period=' + LP)).data;
+  el.innerHTML = `<div class="row"><div class="tabs" style="margin:0" id="lt">${[['daily', 'Daily'], ['weekly', 'Weekly'], ['all', 'All-time']].map((t) => `<button data-p="${t[0]}" class="${LP === t[0] ? 'on' : ''}">${t[1]}</button>`).join('')}</div><span class="sp"></span><button class="btn a" id="rs">Reset daily leaderboard</button></div>
+  <p class="mut">Top 10 real users by total winnings. ${d.dailyResetAt ? 'Daily board last reset: ' + fmt(d.dailyResetAt) + '.' : ''} Resetting only affects the daily board – wallet history is never changed.</p>` + tbl(['Rank', 'Player', 'User ID', 'Winnings'], d.rows.map((r) => `<tr><td><b>${r.rank === 1 ? '👑 ' : '#'}${r.rank}</b></td><td>${esc(r.name)}</td><td>#${r.userId}</td><td><b class="pos">${inr(r.winnings)}</b></td></tr>`), 'No winners yet for this period');
+  $('#lt').onclick = (e) => { const b = e.target.closest('button'); if (b) { LP = b.dataset.p; route(); } };
+  $('#rs').onclick = (e) => { if (confirm('Reset the DAILY leaderboard now?')) act(e.currentTarget, async () => { ok((await api('/admin/leaderboard/reset-daily', { method: 'POST' })).message); route(); }); };
+};
+
+/* ================= LOGS ================= */
+const LG = { tab: 'ledger', q: '', page: 0, type: 'all' };
+PAGES.logs = async (el) => {
+  el.innerHTML = `<div class="tabs" id="lt">${[['ledger', 'Wallet ledger'], ['audit', 'Admin audit log'], ['otp', 'OTP logs']].map((t) => `<button data-t="${t[0]}" class="${LG.tab === t[0] ? 'on' : ''}">${t[1]}</button>`).join('')}</div>
+  <div class="row"><input class="in" id="l-q" placeholder="Search…" value="${esc(LG.q)}" style="min-width:240px">${LG.tab === 'ledger' ? `<select class="in" id="l-t">${['all', 'deposit', 'entry_fee', 'win', 'refund', 'referral_bonus', 'withdrawal', 'withdrawal_refund', 'admin_credit', 'admin_debit'].map((s) => `<option ${LG.type === s ? 'selected' : ''}>${s}</option>`).join('')}</select>` : ''}</div><div id="ll">${sk(2)}</div>`;
+  const load = async () => {
+    const d = (await api(`/admin/logs/${LG.tab}?q=${encodeURIComponent(LG.q)}&page=${LG.page}&type=${LG.type}`)).data; let t;
+    if (LG.tab === 'ledger') t = tbl(['#', 'Date', 'User', 'Type', 'Amount', 'Dep Δ', 'Win Δ', 'Balance after (dep / win)', 'Match', 'Ref / note'], d.rows.map((r) => `<tr><td>${r.id}</td><td>${fmt(r.at)}</td><td>${esc(r.name || '#' + r.userId)}<br><span class="mut">${esc(r.mobile || 'deleted')}</span></td><td>${esc(r.type)}</td><td><b>${inr(r.amount)}</b></td><td class="${r.dep > 0 ? 'pos' : r.dep < 0 ? 'neg' : ''}">${r.dep}</td><td class="${r.win > 0 ? 'pos' : r.win < 0 ? 'neg' : ''}">${r.win}</td><td>${inr(r.depAfter)} / ${inr(r.winAfter)}</td><td>${r.matchId ? '#' + r.matchId : ''}</td><td class="mut">${esc(r.ref)}<br>${esc(r.note)}</td></tr>`), 'No ledger entries yet');
+    else if (LG.tab === 'audit') t = tbl(['Date', 'Admin', 'Action', 'Details'], d.rows.map((r) => `<tr><td>${fmt(r.created_at)}</td><td>${esc(r.admin)}</td><td><b>${esc(r.action)}</b></td><td>${esc(r.details)}</td></tr>`), 'No admin actions logged yet');
+    else t = tbl(['Date', 'Mobile', 'Purpose', 'Action', 'Result', 'IP', 'Provider response'], d.rows.map((r) => `<tr><td>${fmt(r.created_at)}</td><td>${esc(r.mobile)}</td><td>${esc(r.purpose)}</td><td>${esc(r.action)}</td><td>${bd(r.success ? 'success' : 'failed')}</td><td class="mono">${esc(r.ip)}</td><td class="mono" style="max-width:360px;word-break:break-all">${esc(r.raw)}</td></tr>`), 'No OTP activity yet');
+    $('#ll').innerHTML = t + `<div class="row" style="margin-top:12px"><button class="btn sm o" id="pv" ${LG.page ? '' : 'disabled'}>← Prev</button><button class="btn sm o" id="nx" ${d.more ? '' : 'disabled'}>Next →</button></div>`;
+    $('#pv').onclick = () => { LG.page--; load(); }; $('#nx').onclick = () => { LG.page++; load(); };
+  };
+  $('#lt').onclick = (e) => { const b = e.target.closest('button'); if (b) { LG.tab = b.dataset.t; LG.page = 0; LG.q = ''; route(); } };
+  let tm; $('#l-q').oninput = (e) => { LG.q = e.target.value.trim(); LG.page = 0; clearTimeout(tm); tm = setTimeout(() => load().catch(fail), 350); };
+  if ($('#l-t')) $('#l-t').onchange = (e) => { LG.type = e.target.value; LG.page = 0; load().catch(fail); };
+  await load();
+};
+
+/* ================= global wiring ================= */
+$('#lf').onsubmit = async (e) => {
+  e.preventDefault(); const b = $('#lb'); busy(b, true);
+  try { const r = await api('/admin/login', { method: 'POST', body: { username: $('#lu').value.trim(), password: $('#lp').value } }); A.token = r.data.token; A.name = r.data.username; LS.set('hz_admin', A.token); $('#lp').value = ''; showApp(); }
+  catch (er) { fail(er); } finally { busy(b, false); }
+};
+$('#lo').onclick = () => doLogout(false);
+$('#rf').onclick = () => route();
+$('#burger').onclick = () => { $('#side').classList.toggle('open'); $('#scrim').classList.toggle('on'); };
+$('#scrim').onclick = () => { $('#side').classList.remove('open'); $('#scrim').classList.remove('on'); };
+$('#nav').onclick = (e) => { const b = e.target.closest('button'); if (b) location.hash = b.dataset.p; };
+window.addEventListener('hashchange', route);
+$('#chpw').onclick = () => {
+  const m = modal('Change admin password', `<div class="fld"><label>Current password</label><input id="c-o" type="password" autocomplete="current-password"></div><div class="fld"><label>New password (min 8 characters)</label><input id="c-n" type="password" autocomplete="new-password"></div><button class="btn" id="c-s">Change password</button>`);
+  $('#c-s', m.el).onclick = (e) => act(e.currentTarget, async () => { const r = await api('/admin/password', { method: 'POST', body: { oldPassword: $('#c-o').value, newPassword: $('#c-n').value } }); A.token = r.data.token; LS.set('hz_admin', A.token); ok(r.message); m.close(); });
+};
+(async function boot() {
+  if (!A.token) return showLogin();
+  try { const r = await api('/admin/me'); A.name = r.data.username; showApp(); } catch (e) { if (e.status === 401) showLogin(); else { showLogin(); fail(e); } }
+})();
+</script>
+</body>
+</html>
